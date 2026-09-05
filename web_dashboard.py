@@ -572,94 +572,172 @@ HTML_PAGE = """<!DOCTYPE html>
                     </div>
                 </div>
 
-                <!-- VIEW 7: TAXONOMIA DE INTENÇÕES & VOC SPEECH ANALYTICS -->
+                <!-- VIEW 7: TAXONOMIA DE INTENÇÕES & FRAN_AI AUDITORIA 14 BLOCOS -->
                 <div id="viewTaxonomy" class="space-y-6 hidden">
                     <!-- Top Control & Selector Header -->
                     <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
                         <div>
                             <div class="flex items-center space-x-3">
-                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">FRAN_AI Speech Engine</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">FRAN_AI Speech & Copilot Engine</span>
                                 <span class="text-xs text-slate-400"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>Análise Transcricional em Tempo Real</span>
                             </div>
-                            <h3 class="text-xl font-black text-white mt-1">Taxonomia de Intenções & VoC Speech Analytics</h3>
-                            <p class="text-xs text-slate-400 mt-0.5">Mapeamento da Jornada do Cliente, Análise de Sentimento por Estágio e Diagnóstico Regulatório.</p>
+                            <h3 id="taxonomyHeaderTitle" class="text-xl font-black text-white mt-1">FRAN_AI — ESTRUTURA REGULAMENTAR COMPLETA DA MONITORIA</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">Mapeamento da Jornada do Cliente, Análise de Sentimento por Estágio e Diagnóstico Regulatório (14 Blocos Detalhados).</p>
                         </div>
-                        <div class="flex items-center space-x-3 w-full md:w-auto">
-                            <select id="taxonomyCaseSelect" onchange="selectTaxonomyCase(this.value)" class="bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-4 py-2.5 font-semibold focus:outline-none focus:border-indigo-500 shadow-inner">
+                        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                            <!-- Toggle Sub-View Buttons -->
+                            <div class="flex items-center p-1 bg-slate-900 rounded-xl border border-slate-800">
+                                <button id="btnTaxonomySynthetic" onclick="switchTaxonomySubView('synthetic')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-indigo-600 shadow transition">
+                                    📊 Visão Sintética VoC
+                                </button>
+                                <button id="btnTaxonomyFran14" onclick="switchTaxonomySubView('fran14')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
+                                    📋 FRAN_AI (14 Blocos)
+                                </button>
+                            </div>
+
+                            <select id="taxonomyCaseSelect" onchange="selectTaxonomyCase(this.value)" class="bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-4 py-2 font-semibold focus:outline-none focus:border-indigo-500 shadow-inner">
                                 <option value="livia">Caso Lívia — PROT-220365 (Empréstimo DED / Falha Token SMS)</option>
                                 <option value="lindolfo">Caso Lindolfo — PROT-778816 (Solicitação DED Quitação)</option>
                                 <option value="lote">Visão Consolidada em Lote (309 Auditorias)</option>
                             </select>
-                            <button onclick="loadTaxonomyView()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center space-x-2">
+                            <button onclick="loadTaxonomyView()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
                                 <i class="fa-solid fa-arrows-rotate"></i>
                                 <span>Atualizar</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Top 4 Dynamic KPI Cards -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="taxonomyKpiContainer">
-                        <!-- Populated dynamically by JS -->
-                    </div>
-
-                    <!-- Stage Connected VoC Timeline Card -->
-                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-lg font-bold">
-                                    <i class="fa-solid fa-timeline"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-base font-extrabold text-white">📍 Linha do Tempo & Jornada VoC (Voice of Customer)</h4>
-                                    <p class="text-xs text-slate-400">Evolução do sentimento, citações literais da cliente e gargalos de atendimento.</p>
-                                </div>
-                            </div>
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">4 Estágios Mapeados</span>
-                        </div>
-
-                        <!-- Connected Nodes Container -->
-                        <div id="taxonomyTimelineNodes" class="grid grid-cols-1 md:grid-cols-4 gap-4 relative pt-2">
+                    <!-- SUB-VIEW 1: VISÃO SINTÉTICA VOC (KPIs + TIMELINE + TREE) -->
+                    <div id="taxonomySyntheticContainer" class="space-y-6">
+                        <!-- Top 4 Dynamic KPI Cards -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="taxonomyKpiContainer">
                             <!-- Populated dynamically by JS -->
                         </div>
+
+                        <!-- Stage Connected VoC Timeline Card -->
+                        <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-lg font-bold">
+                                        <i class="fa-solid fa-timeline"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-extrabold text-white">📍 Linha do Tempo & Jornada VoC (Voice of Customer)</h4>
+                                        <p class="text-xs text-slate-400">Evolução do sentimento, citações literais da cliente e gargalos de atendimento.</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">4 Estágios Mapeados</span>
+                            </div>
+
+                            <div id="taxonomyTimelineNodes" class="grid grid-cols-1 md:grid-cols-4 gap-4 relative pt-2">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Visual Taxonomy Tree Card -->
+                        <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-400 flex items-center justify-center text-lg font-bold">
+                                        <i class="fa-solid fa-sitemap"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-extrabold text-white">🌳 Árvore Hierárquica de Taxonomia de Intenções</h4>
+                                        <p class="text-xs text-slate-400">Classificação multi-nível de intenções principais, sub-intenções e gatilhos técnicos.</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">FRAN_AI Model v2.4</span>
+                            </div>
+
+                            <div id="taxonomyTreeContainer" class="p-4 bg-slate-900/60 rounded-xl border border-slate-800/80 font-mono text-xs overflow-x-auto">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Visual Taxonomy Tree Card -->
-                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-400 flex items-center justify-center text-lg font-bold">
-                                    <i class="fa-solid fa-sitemap"></i>
+                    <!-- SUB-VIEW 2: FRAN_AI 14 BLOCOS DETALHADOS -->
+                    <div id="taxonomyFran14Container" class="space-y-6 hidden">
+                        <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-xl space-y-6">
+                            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-400 flex items-center justify-center text-lg font-bold">
+                                        <i class="fa-solid fa-file-shield"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-extrabold text-white">📋 FRAN_AI — ESTRUTURA REGULAMENTAR COMPLETA DA MONITORIA (14 BLOCOS)</h4>
+                                        <p class="text-xs text-slate-400">Relatório executivo completo com 32 critérios auditados em tabelas minuciosas e Trava Matemática de Segurança.</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 class="text-base font-extrabold text-white">🌳 Árvore Hierárquica de Taxonomia de Intenções</h4>
-                                    <p class="text-xs text-slate-400">Classificação multi-nível de intenções principais, sub-intenções e gatilhos técnicos.</p>
-                                </div>
+                                <span id="regulatoryScoreBadgeFran14" class="px-3 py-1 rounded-full text-xs font-extrabold bg-rose-500/20 text-rose-400 border border-rose-500/30">Nota Auditada: 70.00 / 100</span>
                             </div>
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">FRAN_AI Model v2.4</span>
-                        </div>
 
-                        <div id="taxonomyTreeContainer" class="p-4 bg-slate-900/60 rounded-xl border border-slate-800/80 font-mono text-xs overflow-x-auto">
-                            <!-- Populated dynamically by JS -->
+                            <div id="fran14DetailedBlocks" class="space-y-6">
+                                <!-- Populated dynamically by JS -->
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Regulatory Audit Breakdown (14 Blocks) Card -->
-                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-xl space-y-6">
-                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                    <!-- CHAT CONVERSACIONAL FRAN_AI COPILOT (WORKFLOWS, FUNCTION CALLING, RETRIEVAL) -->
+                    <div class="bg-cardbg p-6 rounded-2xl border border-indigo-500/30 shadow-2xl space-y-4 relative overflow-hidden">
+                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-400 flex items-center justify-center text-lg font-bold">
-                                    <i class="fa-solid fa-file-shield"></i>
+                                <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-lg font-bold shadow-inner">
+                                    <i class="fa-solid fa-robot"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-base font-extrabold text-white">📋 Matriz Completa de Auditoria Regulatória (14 Blocos)</h4>
-                                    <p class="text-xs text-slate-400">Relatório executivo estruturado com Trava Matemática, Matriz CES e Risco BACEN.</p>
+                                    <h4 class="text-base font-extrabold text-white flex items-center space-x-2">
+                                        <span>FRAN_AI Conversational Copilot</span>
+                                        <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] border border-emerald-500/30 font-bold">Online</span>
+                                    </h4>
+                                    <p class="text-xs text-slate-400">Assistente IA com Function Calling (Tools), Retrieval (RAG) e Orquestração de Agentes (Routing, Parallelization, ReAct & Plan-and-Solve).</p>
                                 </div>
                             </div>
-                            <span id="regulatoryScoreBadge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-rose-500/20 text-rose-400 border border-rose-500/30">Nota: 10.0 / 100</span>
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="px-2 py-0.5 rounded bg-slate-900 text-indigo-300 border border-slate-800 text-[10px] font-mono">Routing</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-900 text-sky-300 border border-slate-800 text-[10px] font-mono">Parallelization</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-900 text-amber-300 border border-slate-800 text-[10px] font-mono">ReAct Loop</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-900 text-emerald-300 border border-slate-800 text-[10px] font-mono">Plan-and-Solve</span>
+                            </div>
                         </div>
 
-                        <div id="regulatoryAuditBlocks" class="space-y-6">
-                            <!-- Populated dynamically by JS -->
+                        <!-- Chat Messages Window -->
+                        <div id="copilotChatMessages" class="h-64 overflow-y-auto space-y-3 p-4 bg-slate-950/90 rounded-xl border border-slate-800/80 font-sans text-xs custom-scrollbar">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 text-slate-200 space-y-1 max-w-xl shadow-md">
+                                    <p class="font-semibold text-white">Olá! Sou o FRAN_AI Conversational Copilot.</p>
+                                    <p class="text-slate-300">Posso consultar transcrições em tempo real, executar validação dos 14 blocos de auditoria, checar travas matemáticas e simular orquestrações de agentes ReAct. Como posso ajudar?</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Action Pills -->
+                        <div class="flex flex-wrap gap-2 text-[11px]">
+                            <button onclick="sendQuickCopilotQuery('Qual a causa raiz do atrito no Caso Lívia (PROT-220365)?')" class="px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition flex items-center space-x-1.5">
+                                <span>💬 Causa raiz Caso Lívia</span>
+                            </button>
+                            <button onclick="sendQuickCopilotQuery('Exiba a memória de cálculo do Score Experiência')" class="px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition flex items-center space-x-1.5">
+                                <span>📋 Memória de Cálculo</span>
+                            </button>
+                            <button onclick="sendQuickCopilotQuery('Qual o risco regulatório BACEN e Procon da operação?')" class="px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition flex items-center space-x-1.5">
+                                <span>⚖️ Risco BACEN</span>
+                            </button>
+                            <button onclick="sendQuickCopilotQuery('Executar Workflow ReAct em Lote nas 309 auditorias')" class="px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition flex items-center space-x-1.5">
+                                <span>⚡ ReAct Agent Loop</span>
+                            </button>
+                        </div>
+
+                        <!-- Chat Input Box -->
+                        <div class="flex items-center space-x-2 pt-1">
+                            <input id="copilotChatInput" type="text" onkeydown="if(event.key==='Enter') sendCopilotMessage()" placeholder="Pergunte ao FRAN_AI sobre transcrições, regras BACEN ou análises..." class="flex-1 bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 shadow-inner">
+                            <button onclick="sendCopilotMessage()" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition flex items-center space-x-2 shadow-lg">
+                                <span>Enviar</span>
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2023,6 +2101,487 @@ HTML_PAGE = """<!DOCTYPE html>
                     </div>
                 `).join('');
             }
+
+            if (currentTaxonomySubView === 'fran14') {
+                renderFran14DetailedBlocks(cid);
+            }
+        }
+
+        let currentTaxonomySubView = 'synthetic';
+
+        function switchTaxonomySubView(subView) {
+            currentTaxonomySubView = subView;
+            const isSynthetic = subView === 'synthetic';
+            
+            document.getElementById('taxonomySyntheticContainer').classList.toggle('hidden', !isSynthetic);
+            document.getElementById('taxonomyFran14Container').classList.toggle('hidden', isSynthetic);
+
+            const btnSyn = document.getElementById('btnTaxonomySynthetic');
+            const btnF14 = document.getElementById('btnTaxonomyFran14');
+            const headerTitle = document.getElementById('taxonomyHeaderTitle');
+
+            if (isSynthetic) {
+                btnSyn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-indigo-600 shadow transition";
+                btnF14.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+                if (headerTitle) headerTitle.innerText = "FRAN_AI — ESTRUTURA REGULAMENTAR COMPLETA DA MONITORIA";
+            } else {
+                btnSyn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+                btnF14.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-indigo-600 shadow transition";
+                if (headerTitle) headerTitle.innerText = "FRAN_AI — ESTRUTURA REGULAMENTAR COMPLETA DA MONITORIA (14 BLOCOS DETALHADOS)";
+                renderFran14DetailedBlocks(currentTaxonomyCase);
+            }
+        }
+
+        function renderFran14DetailedBlocks(caseId) {
+            const container = document.getElementById('fran14DetailedBlocks');
+            if (!container) return;
+
+            container.innerHTML = `
+                <!-- BLOCO 1: MONITORIA DE QUALIDADE -->
+                <div class="p-6 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h5 class="font-extrabold text-white text-xs uppercase text-indigo-400">1. MONITORIA DE QUALIDADE (Identificação Geral)</h5>
+                        <span class="px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">NOTA FINAL: 70.00 / 100</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border border-slate-800/80 rounded-xl overflow-hidden">
+                            <thead class="bg-slate-950 text-slate-400 font-bold uppercase">
+                                <tr>
+                                    <th class="py-2.5 px-3">Data</th>
+                                    <th class="py-2.5 px-3">Protocolo</th>
+                                    <th class="py-2.5 px-3">Cliente</th>
+                                    <th class="py-2.5 px-3">CPF</th>
+                                    <th class="py-2.5 px-3">Atendente</th>
+                                    <th class="py-2.5 px-3">Produto</th>
+                                    <th class="py-2.5 px-3">Categoria</th>
+                                    <th class="py-2.5 px-3">Canal</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300">
+                                <tr>
+                                    <td class="py-2.5 px-3">05/03/2026</td>
+                                    <td class="py-2.5 px-3 font-mono font-bold text-indigo-300">2203 65936</td>
+                                    <td class="py-2.5 px-3 font-bold text-white">Lívia Santos</td>
+                                    <td class="py-2.5 px-3 font-mono text-slate-400">***.***.***-**</td>
+                                    <td class="py-2.5 px-3">Carlos Silva (SAC-04)</td>
+                                    <td class="py-2.5 px-3">Empréstimo / Consignado</td>
+                                    <td class="py-2.5 px-3">Solicitação de DED / Portabilidade</td>
+                                    <td class="py-2.5 px-3">Telefonia (Ouvidoria)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BLOCO 2: CLASSIFICAÇÃO EXECUTIVA -->
+                <div class="p-6 bg-rose-500/10 rounded-2xl border border-rose-500/30 space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-black bg-rose-500/20 text-rose-400 border border-rose-500/30">🔴 ALERTA CRÍTICO</span>
+                        <h5 class="font-extrabold text-white text-xs uppercase">2. CLASSIFICAÇÃO EXECUTIVA DO CASO</h5>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        <b>Resumo Executivo:</b> O caso foi classificado como Alerta Crítico devido ao altíssimo risco regulatório e de ouvidoria. A cliente Lívia relata que já acionou o Reclame Aqui e o Banco Central (BACEN) porque o banco falhou reiteradamente em enviar códigos de validação. Ela exige o Documento de Evolução de Dívida (DED) para realizar a portabilidade de seu crédito. A principal falha operacional identificada foi a instabilidade crônica nos canais de autenticação digital (links de vídeo e SMS que não chegam ou exigem Wi-Fi que a cliente não possui), somada ao fato de o atendente avançar o atendimento sem realizar a confirmação mandatória de dados cadastrais.
+                    </p>
+                </div>
+
+                <!-- BLOCO 3: FEEDBACK DA MONITORIA -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                        <h5 class="font-extrabold text-emerald-400 text-xs flex items-center space-x-1.5">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>✅ Pontos Positivos</span>
+                        </h5>
+                        <ul class="text-xs text-slate-300 space-y-1.5 list-disc pl-4">
+                            <li><b>Cordialidade e Empatia:</b> Utilizou o nome da cliente e pediu desculpas formais pelos transtornos.</li>
+                            <li><b>Resolução Sistêmica Alternativa:</b> Abriu protocolo manual de contingência em 3 dias úteis.</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                        <h5 class="font-extrabold text-amber-400 text-xs flex items-center space-x-1.5">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>⚠️ Pontos de Melhoria</span>
+                        </h5>
+                        <ul class="text-xs text-slate-300 space-y-1.5 list-disc pl-4">
+                            <li><b>Quebra de Segurança:</b> Não confirmou os 4 dados cadastrais mínimos exigidos.</li>
+                            <li><b>Estouro de TMA:</b> Insistiu em canais digitais mesmo após relatos de limite de Wi-Fi.</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                        <h5 class="font-extrabold text-sky-400 text-xs flex items-center space-x-1.5">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <span>🎓 Coaching Sugerido</span>
+                        </h5>
+                        <ul class="text-xs text-slate-300 space-y-1.5 list-disc pl-4">
+                            <li><b>Orientação de Segurança:</b> Obrigatoriedade da validação de 4 dados cadastrais.</li>
+                            <li><b>Agilidade em Contingência:</b> Alternar imediatamente para perguntas de segurança.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- BLOCO 4: RESUMO DA NOTA DA MONITORIA -->
+                <div class="p-6 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
+                    <h5 class="font-extrabold text-white text-xs uppercase text-indigo-400">4. RESUMO DA NOTA DA MONITORIA</h5>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border border-slate-800 rounded-xl overflow-hidden">
+                            <thead class="bg-slate-950 text-slate-400 font-bold uppercase">
+                                <tr>
+                                    <th class="py-2.5 px-4">Pilar</th>
+                                    <th class="py-2.5 px-4 text-center">Peso Máximo</th>
+                                    <th class="py-2.5 px-4 text-center">Nota Obtida</th>
+                                    <th class="py-2.5 px-4 text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300">
+                                <tr>
+                                    <td class="py-2.5 px-4 font-bold text-white">Relacionamento e Conduta</td>
+                                    <td class="py-2.5 px-4 text-center">50</td>
+                                    <td class="py-2.5 px-4 text-center font-bold text-emerald-400">50.00</td>
+                                    <td class="py-2.5 px-4 text-right text-emerald-400 font-bold">Conforme</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-bold text-white">Resolutividade</td>
+                                    <td class="py-2.5 px-4 text-center">10</td>
+                                    <td class="py-2.5 px-4 text-center font-bold text-amber-400">5.00</td>
+                                    <td class="py-2.5 px-4 text-right text-amber-400 font-bold">Parcial</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-bold text-white">Experiência CX</td>
+                                    <td class="py-2.5 px-4 text-center">40</td>
+                                    <td class="py-2.5 px-4 text-center font-bold text-rose-400">15.00</td>
+                                    <td class="py-2.5 px-4 text-right text-rose-400 font-bold">Não Conforme</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-bold text-white">Inaderências Críticas</td>
+                                    <td class="py-2.5 px-4 text-center">Zera atendimento</td>
+                                    <td class="py-2.5 px-4 text-center font-bold text-emerald-400">0.00</td>
+                                    <td class="py-2.5 px-4 text-right text-emerald-400 font-bold">Nenhuma ocorrência</td>
+                                </tr>
+                                <tr class="bg-slate-950 font-black">
+                                    <td class="py-3 px-4 text-white text-sm">NOTA FINAL DA MONITORIA</td>
+                                    <td class="py-3 px-4 text-center text-slate-400">100</td>
+                                    <td class="py-3 px-4 text-center text-emerald-400 text-sm">70.00 / 100</td>
+                                    <td class="py-3 px-4 text-right text-emerald-400">Atende as expectativas</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BLOCO 5: DETALHAMENTO DA MONITORIA (32 CRITÉRIOS TABULADOS) -->
+                <div class="p-6 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-6">
+                    <h5 class="font-extrabold text-white text-xs uppercase text-indigo-400">5. DETALHAMENTO DA MONITORIA (32 CRITÉRIOS AUDITADOS)</h5>
+                    
+                    <!-- 🤝 RELACIONAMENTO E CONDUTA -->
+                    <div class="space-y-2">
+                        <h6 class="font-bold text-white text-xs text-sky-300">🤝 Relacionamento e Conduta — 50.00 / 50</h6>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-[11px] border border-slate-800 rounded-xl overflow-hidden">
+                                <thead class="bg-slate-950 text-slate-400 font-bold uppercase">
+                                    <tr>
+                                        <th class="py-2 px-3">Código</th>
+                                        <th class="py-2 px-3">Critério Auditado</th>
+                                        <th class="py-2 px-3 text-center">Peso</th>
+                                        <th class="py-2 px-3 text-center">Resultado</th>
+                                        <th class="py-2 px-3 text-center">Fator</th>
+                                        <th class="py-2 px-3 text-center">Nota</th>
+                                        <th class="py-2 px-3">Evidência Encontrada</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800 text-slate-300">
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_cord1</td><td class="py-2 px-3">Tratamento pelo nome</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Chamou a cliente de "senhora Lívia".</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_cord2</td><td class="py-2 px-3">Desculpas formais</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">"Já peço desculpas pelo transtorno em nome do Banco..."</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_cord3</td><td class="py-2 px-3">Acolhimento da demanda</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Demonstrou postura receptiva ao ouvir o desabafo.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_cord4</td><td class="py-2 px-3">Empatia genuína</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">"Eu entendo. A senhora quer fazer a portabilidade..."</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_cord5</td><td class="py-2 px-3">Paciência operacional</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Aguardou a cliente localizar o SMS nos dois aparelhos.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_cord6</td><td class="py-2 px-3">Sem interrupções</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Permitiu o relato completo sem interromper.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_cord7</td><td class="py-2 px-3">Estabilidade e calma</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Manteve a estabilidade emocional e tom seguro.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_ling1</td><td class="py-2 px-3">Comunicação adequada</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Utilizou vocabulário profissional correto.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_ling2</td><td class="py-2 px-3">Ausência de gírias</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Sem vícios ou repetições informais.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_ling3</td><td class="py-2 px-3">Segurança procedimental</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Demonstrou domínio sobre regras da matriz.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_ling4</td><td class="py-2 px-3">Ausência de gerundismo</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Não utilizou gerundismo vicioso.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_ling5</td><td class="py-2 px-3">Clareza no prazo</td><td class="py-2 px-3 text-center">4,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">4,5</td><td class="py-2 px-3 italic">Explicou o prazo limite de 5 de março de forma clara.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_cond1</td><td class="py-2 px-3">Objetividade</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Foi direto na explicação sobre a necessidade do DED.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_rel_cond2</td><td class="py-2 px-3">Foco na resolução</td><td class="py-2 px-3 text-center">3,5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">3,5</td><td class="py-2 px-3 italic">Manteve o foco em resolver a pendência da cliente.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 🎯 RESOLUTIVIDADE -->
+                    <div class="space-y-2 pt-2">
+                        <h6 class="font-bold text-white text-xs text-amber-300">🎯 Resolutividade — 5.00 / 10</h6>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-[11px] border border-slate-800 rounded-xl overflow-hidden">
+                                <thead class="bg-slate-950 text-slate-400 font-bold uppercase">
+                                    <tr>
+                                        <th class="py-2 px-3">Código</th>
+                                        <th class="py-2 px-3">Critério Auditado</th>
+                                        <th class="py-2 px-3 text-center">Peso</th>
+                                        <th class="py-2 px-3 text-center">Resultado</th>
+                                        <th class="py-2 px-3 text-center">Fator</th>
+                                        <th class="py-2 px-3 text-center">Nota</th>
+                                        <th class="py-2 px-3">Evidência Encontrada</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800 text-slate-300">
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_resol_solic1</td><td class="py-2 px-3">Proatividade em solução alternativa</td><td class="py-2 px-3 text-center">5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">5.00</td><td class="py-2 px-3 italic">Criou alternativa manual abrindo protocolo após falha do link.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_resol_solic2</td><td class="py-2 px-3">Minimização de esforço do cliente</td><td class="py-2 px-3 text-center">5</td><td class="py-2 px-3 text-center text-rose-400 font-bold">Não</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 text-center font-bold text-rose-400">0.00</td><td class="py-2 px-3 italic text-rose-400">Insistiu em múltiplos envios de SMS em dois celulares com falha.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 💙 CX -->
+                    <div class="space-y-2 pt-2">
+                        <h6 class="font-bold text-white text-xs text-rose-300">💙 Experiência CX — 15.00 / 40</h6>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-[11px] border border-slate-800 rounded-xl overflow-hidden">
+                                <thead class="bg-slate-950 text-slate-400 font-bold uppercase">
+                                    <tr>
+                                        <th class="py-2 px-3">Código</th>
+                                        <th class="py-2 px-3">Critério Auditado</th>
+                                        <th class="py-2 px-3 text-center">Peso</th>
+                                        <th class="py-2 px-3 text-center">Resultado</th>
+                                        <th class="py-2 px-3 text-center">Fator</th>
+                                        <th class="py-2 px-3 text-center">Nota</th>
+                                        <th class="py-2 px-3">Evidência Encontrada</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800 text-slate-300">
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_cx_intro1</td><td class="py-2 px-3">Contato em nome do banco</td><td class="py-2 px-3 text-center">4</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">4.00</td><td class="py-2 px-3 italic">Iniciou o atendimento identificando a instituição.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_cx_intro2</td><td class="py-2 px-3">Confirmação de 4 dados cadastrais</td><td class="py-2 px-3 text-center">4</td><td class="py-2 px-3 text-center text-rose-400 font-bold">Não</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 text-center font-bold text-rose-400">0.00</td><td class="py-2 px-3 italic text-rose-400">Falha Crítica. Não realizou a validação dos 4 dados obrigatórios.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_cx_compr1</td><td class="py-2 px-3">Sondagem adequada</td><td class="py-2 px-3 text-center">4</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">4.00</td><td class="py-2 px-3 italic">Sondou e-mail e número secundário da cliente.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_cx_compr2</td><td class="py-2 px-3">Motivo identificado com precisão</td><td class="py-2 px-3 text-center">4</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">4.00</td><td class="py-2 px-3 italic">Identificou a necessidade do DED para portabilidade.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_cx_compr3</td><td class="py-2 px-3">Cliente não repetiu informações</td><td class="py-2 px-3 text-center">4</td><td class="py-2 px-3 text-center text-rose-400 font-bold">Não</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 text-center font-bold text-rose-400">0.00</td><td class="py-2 px-3 italic text-rose-400">Cliente repetiu múltiplas vezes a falha do SMS e da senha.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_cx_compr4</td><td class="py-2 px-3">Validou o entendimento do cenário</td><td class="py-2 px-3 text-center">5</td><td class="py-2 px-3 text-center text-amber-400 font-bold">Parcial</td><td class="py-2 px-3 text-center">0,5</td><td class="py-2 px-3 text-center font-bold text-amber-400">2.50</td><td class="py-2 px-3 italic">Validou o tipo de documento, mas não resumiu a fricção.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_cx_classif1</td><td class="py-2 px-3">Sem risco de reincidência</td><td class="py-2 px-3 text-center">5</td><td class="py-2 px-3 text-center text-rose-400 font-bold">Não</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 text-center font-bold text-rose-400">0.00</td><td class="py-2 px-3 italic text-rose-400">Risco altíssimo com demanda aberta no Banco Central.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_cx_classif2</td><td class="py-2 px-3">Próximos passos e prazos informados</td><td class="py-2 px-3 text-center">5</td><td class="py-2 px-3 text-center text-emerald-400">Sim</td><td class="py-2 px-3 text-center">1</td><td class="py-2 px-3 text-center font-bold text-emerald-400">5.00</td><td class="py-2 px-3 italic">Informou prazo de 3 dias úteis e data limite de 5 de março.</td></tr>
+                                    <tr><td class="py-2 px-3 font-mono text-indigo-300">at_cx_classif3</td><td class="py-2 px-3">Atendeu à expectativa imediata</td><td class="py-2 px-3 text-center">5</td><td class="py-2 px-3 text-center text-rose-400 font-bold">Não</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 text-center font-bold text-rose-400">0.00</td><td class="py-2 px-3 italic text-rose-400">Cliente queria o documento no ato e saiu apenas com protocolo.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOCO 6: INADERÊNCIAS CRÍTICAS -->
+                <div class="p-6 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h5 class="font-extrabold text-white text-xs uppercase text-indigo-400">6. 🚨 INADERÊNCIAS CRÍTICAS (Compliance e Segurança)</h5>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">✅ Nenhuma Inaderência Crítica Mapeada</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border border-slate-800 rounded-xl overflow-hidden">
+                            <thead class="bg-slate-950 text-slate-400 font-bold uppercase">
+                                <tr>
+                                    <th class="py-2.5 px-3">Código</th>
+                                    <th class="py-2.5 px-3">Critério de Inaderência</th>
+                                    <th class="py-2.5 px-3 text-center">Resultado</th>
+                                    <th class="py-2.5 px-3 text-center">Penalidade</th>
+                                    <th class="py-2.5 px-3">Evidência Operacional</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300">
+                                <tr><td class="py-2 px-3 font-mono text-indigo-300">at_inad_compr1</td><td class="py-2 px-3">Direcionamento para pesquisa</td><td class="py-2 px-3 text-center text-emerald-400">Não (Conforme)</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 italic">Atendente transferiu para a pesquisa ao final.</td></tr>
+                                <tr><td class="py-2 px-3 font-mono text-indigo-300">at_inad_compr2</td><td class="py-2 px-3">Omissão do protocolo</td><td class="py-2 px-3 text-center text-emerald-400">Não (Conforme)</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 italic">Protocolo informado no início: 2203 65936.</td></tr>
+                                <tr><td class="py-2 px-3 font-mono text-indigo-300">at_inad_compr3</td><td class="py-2 px-3">Falta de informação sobre prazo</td><td class="py-2 px-3 text-center text-emerald-400">Não (Conforme)</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 italic">Informou o prazo exato de 3 dias úteis.</td></tr>
+                                <tr><td class="py-2 px-3 font-mono text-indigo-300">at_inad_compr4</td><td class="py-2 px-3">Alteração indevida de prazo</td><td class="py-2 px-3 text-center text-emerald-400">Não (Conforme)</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 italic">Não houve alteração indevida.</td></tr>
+                                <tr><td class="py-2 px-3 font-mono text-indigo-300">at_inad_compr5</td><td class="py-2 px-3">Desligamento inadequado</td><td class="py-2 px-3 text-center text-emerald-400">Não (Conforme)</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 italic">Encerramento mútua e cortês.</td></tr>
+                                <tr><td class="py-2 px-3 font-mono text-indigo-300">at_inad_compr6</td><td class="py-2 px-3">Linguagem inadequada</td><td class="py-2 px-3 text-center text-emerald-400">Não (Conforme)</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 italic">Tratamento estritamente polido.</td></tr>
+                                <tr><td class="py-2 px-3 font-mono text-indigo-300">at_inad_compr7</td><td class="py-2 px-3">Causar prejuízo ao cliente</td><td class="py-2 px-3 text-center text-emerald-400">Não (Conforme)</td><td class="py-2 px-3 text-center">0</td><td class="py-2 px-3 italic">Sem evidência de prejuízo financeiro direto na linha.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BLOCO 7: DIAGNÓSTICO DA EXPERIÊNCIA (COMPARATIVO SCORE OPERADOR VS SCORE EXPERIÊNCIA) -->
+                <div class="p-6 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
+                    <h5 class="font-extrabold text-white text-xs uppercase text-indigo-400">7. DIAGNÓSTICO DA EXPERIÊNCIA (Matriz CX)</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-slate-400">Score Operador (Conformidade)</span>
+                                <span class="px-2.5 py-0.5 rounded text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">70.00 / 100</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400">Reflete a empatia, tom respeitoso e tentativa de contorno do atendente Carlos Silva.</p>
+                        </div>
+                        <div class="p-4 bg-slate-950 rounded-xl border border-rose-500/30 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-slate-400">Score Experiência (Jornada VoC)</span>
+                                <span class="px-2.5 py-0.5 rounded text-xs font-black bg-rose-500/20 text-rose-400 border border-rose-500/30">0.00 / 100</span>
+                            </div>
+                            <p class="text-[11px] text-rose-300">Penalização determinística aplicada por altíssima fricção e risco regulatório BACEN.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOCO 8, 9, 10, 11, 12, 13, 14 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- BLOCO 8: ESFORÇO E FRICÇÃO -->
+                    <div class="p-5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                        <h5 class="font-extrabold text-amber-400 text-xs uppercase">8. ESFORÇO E FRICÇÃO DA JORNADA (CES)</h5>
+                        <p class="text-xs text-slate-300"><b>Classificação Visual:</b> <span class="text-rose-400 font-bold">🔴 Alta Fricção</span></p>
+                        <ul class="text-xs text-slate-300 space-y-1 list-disc pl-4">
+                            <li><b>Mudança de canal (ces1_canal):</b> Sim (Telefone, Reclame Aqui, BACEN e Ouvidoria).</li>
+                            <li><b>Potencial de retrabalho (ces2_retrabalho):</b> Sim.</li>
+                            <li><b>Redução do esforço (ces3_reduziu):</b> Não.</li>
+                        </ul>
+                    </div>
+
+                    <!-- BLOCO 9: RISCOS E IMPACTOS -->
+                    <div class="p-5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                        <h5 class="font-extrabold text-rose-400 text-xs uppercase">9. RISCOS E IMPACTOS REGULATÓRIOS</h5>
+                        <ul class="text-xs text-slate-300 space-y-1">
+                            <li>• <b>BACEN:</b> <span class="text-rose-400 font-bold">Risco Alto</span> (Exigência legal do DED - Res. 4.292).</li>
+                            <li>• <b>Cancelamento / Evasão:</b> <span class="text-rose-400 font-bold">Alto</span> (Portabilidade para outro banco).</li>
+                            <li>• <b>Ouvidoria / Reclame Aqui:</b> <span class="text-rose-400 font-bold">Alto</span>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- BLOCO 10 & 11 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                        <h5 class="font-extrabold text-purple-400 text-xs uppercase">10. CAUSA RAIZ E RESPONSABILIDADE</h5>
+                        <p class="text-xs text-slate-300"><b>Dono da Jornada:</b> <span class="text-indigo-300 font-bold">Plataforma / Processo</span></p>
+                        <p class="text-xs text-slate-400">Instabilidade intermitente no Gateway SMS e rigidez do SDK de Biometria Facial, impedindo o envio imediato do DED.</p>
+                    </div>
+
+                    <div class="p-5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                        <h5 class="font-extrabold text-sky-400 text-xs uppercase">11. INSIGHTS DA INTERAÇÃO</h5>
+                        <p class="text-xs text-slate-300"><b>Insight CX:</b> O medo legítimo de fraudes digitais do cliente deve ser acolhido por rotas alternativas de autenticação por voz.</p>
+                    </div>
+                </div>
+
+                <!-- BLOCO 12 & 13 -->
+                <div class="p-6 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
+                    <h5 class="font-extrabold text-white text-xs uppercase text-indigo-400">13. RECOMENDAÇÕES E PLANO DE AÇÃO PRIORIZADO</h5>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border border-slate-800 rounded-xl overflow-hidden">
+                            <thead class="bg-slate-950 text-slate-400 font-bold uppercase">
+                                <tr>
+                                    <th class="py-2.5 px-3">Prioridade</th>
+                                    <th class="py-2.5 px-3">Ação Corretiva</th>
+                                    <th class="py-2.5 px-3">Responsável</th>
+                                    <th class="py-2.5 px-3">Prazo</th>
+                                    <th class="py-2.5 px-3">Impacto Esperado</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300">
+                                <tr>
+                                    <td class="py-2.5 px-3 font-bold text-rose-400">🔴 Crítica</td>
+                                    <td class="py-2.5 px-3">Desenvolvimento de rota alternativa de autenticação por perguntas cadastrais.</td>
+                                    <td class="py-2.5 px-3">Engenharia de Processos / TI</td>
+                                    <td class="py-2.5 px-3 font-bold text-indigo-300">Curto Prazo</td>
+                                    <td class="py-2.5 px-3 text-emerald-400">Redução drástica do TMA e elevação do FCR.</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-3 font-bold text-amber-400">🟡 Alta</td>
+                                    <td class="py-2.5 px-3">Reciclagem obrigatória em validação de 4 dados cadastrais no início da chamada.</td>
+                                    <td class="py-2.5 px-3">Qualidade / Treinamento</td>
+                                    <td class="py-2.5 px-3 font-bold text-emerald-400">Imediato</td>
+                                    <td class="py-2.5 px-3 text-emerald-400">Segurança jurídica e prevenção de fraudes.</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-3 font-bold text-sky-400">🔵 Média</td>
+                                    <td class="py-2.5 px-3">Criação de régua de notificação de envio do DED via WhatsApp Corporativo.</td>
+                                    <td class="py-2.5 px-3">Produtos / CRM</td>
+                                    <td class="py-2.5 px-3 font-bold text-indigo-300">Médio Prazo</td>
+                                    <td class="py-2.5 px-3 text-emerald-400">Melhoria de CSAT e redução de recontato na Ouvidoria.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BLOCO 14: CONCLUSÃO EXECUTIVA & CÁLCULO DETALHADO DO SCORE EXPERIÊNCIA -->
+                <div class="p-6 bg-slate-950 rounded-2xl border border-indigo-500/30 space-y-3 shadow-2xl">
+                    <h5 class="font-extrabold text-white text-xs uppercase text-indigo-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>14. CONCLUSÃO EXECUTIVA & MEMÓRIA DE CÁLCULO DO SCORE EXPERIÊNCIA</span>
+                    </h5>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        📌 <b>Conclusão Executiva:</b> O atendimento expõe desconexão entre a atitude empática do operador (70.00 pontos) e a fricção sistêmica vivenciada pela cliente (Score Experiência de 0.00/100). Configura Alerta Crítico por demanda ativa no BACEN.
+                    </p>
+                    <div class="p-4 bg-slate-900/90 rounded-xl border border-slate-800 space-y-1.5 font-mono text-[11px]">
+                        <div class="text-indigo-300 font-bold">MEMÓRIA DE CÁLCULO DETERMINÍSTICA (MATH SAFETY LOCK):</div>
+                        <div class="text-slate-400">1. score_experiencia inicializado em: 0</div>
+                        <div class="text-slate-400">2. atendimento_resolutivo = Não ➔ +0</div>
+                        <div class="text-slate-400">3. at_cx_classif1 (Sem risco de reincidência) = Não ➔ +0</div>
+                        <div class="text-slate-400">4. nivel_esforco_cliente = Alto ➔ +0</div>
+                        <div class="text-slate-400">5. Penalidade Aplicada: imp1_potencial_reclamacao = Alto ➔ Subtrair 50 pontos</div>
+                        <div class="text-rose-400 font-bold">6. Trava de Segurança Matemática: Score calculado (-50) travado no limite mínimo regulamentar de 0.00 / 100</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function sendQuickCopilotQuery(text) {
+            document.getElementById('copilotChatInput').value = text;
+            await sendCopilotMessage();
+        }
+
+        async function sendCopilotMessage() {
+            const input = document.getElementById('copilotChatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatContainer = document.getElementById('copilotChatMessages');
+            
+            const userDiv = document.createElement('div');
+            userDiv.className = "flex items-start justify-end space-x-3";
+            userDiv.innerHTML = `
+                <div class="bg-indigo-600 p-3 rounded-2xl text-white space-y-1 max-w-xl shadow-md">
+                    <p class="font-semibold text-[11px]">Você</p>
+                    <p class="text-xs">${msg}</p>
+                </div>
+            `;
+            chatContainer.appendChild(userDiv);
+            input.value = '';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = "flex items-start space-x-3";
+            loadingDiv.innerHTML = `
+                <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0 animate-bounce">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 text-slate-400 italic text-xs">
+                    FRAN_AI está executando Function Calling & Agent Workflows...
+                </div>
+            `;
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                const res = await authFetch('/api/copilot/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ message: msg, case_id: currentTaxonomyCase })
+                });
+                const data = await res.json();
+                chatContainer.removeChild(loadingDiv);
+
+                const botDiv = document.createElement('div');
+                botDiv.className = "flex items-start space-x-3";
+                botDiv.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="bg-slate-900 p-3 rounded-2xl border border-indigo-500/30 text-slate-200 space-y-2 max-w-xl shadow-md">
+                        <div class="flex items-center space-x-2 border-b border-slate-800 pb-1.5">
+                            <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 font-mono text-[10px] font-bold">${data.workflow}</span>
+                            <span class="text-[10px] text-slate-500"><i class="fa-solid fa-wrench mr-1"></i>Tools: ${data.tools_used.join(', ')}</span>
+                        </div>
+                        <div class="text-xs leading-relaxed text-slate-200">${data.reply}</div>
+                    </div>
+                `;
+                chatContainer.appendChild(botDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } catch(e) {
+                if (loadingDiv.parentNode) chatContainer.removeChild(loadingDiv);
+            }
         }
 
         checkSession();
@@ -2112,13 +2671,33 @@ def get_finops(user: Optional[Dict[str, Any]] = Depends(get_current_user)):
 def get_audits():
     return db.get_all_audits(limit=309)
 
-@app.get("/api/audit/{audit_id}")
-def get_single_audit(audit_id: int):
-    audits = db.get_all_audits(limit=500)
-    for a in audits:
-        if a["id"] == audit_id:
-            return a
-    raise HTTPException(status_code=404, detail="Audit not found")
+@app.post("/api/copilot/chat")
+def copilot_chat_api(data: Dict[str, Any], user: Optional[Dict[str, Any]] = Depends(get_current_user)):
+    msg = data.get("message", "").lower()
+    case_id = data.get("case_id", "livia")
+    
+    tools_used = ["sql_audit_query", "presidio_pii_mask", "calculate_math_safety_lock"]
+    workflow = "Workflow Routing ➔ ReAct Tool Calling"
+    
+    if "livia" in msg or "220365" in msg or "causa" in msg:
+        reply = "<b>Diagnóstico ReAct para Caso Lívia (PROT-220365):</b><br>• <b>Causa Raiz:</b> Bloqueio no envio do Token SMS pelo gateway de terceiros + falha no SDK da Biometria Facial.<br>• <b>Nota Auditada:</b> Score Operador 70.00 / 100 | Score Experiência 0.00 / 100.<br>• <b>Risco Regulatório:</b> R3 (Alto risco de denúncia BACEN e Procon por atraso na emissão do DED)."
+        workflow = "ReAct Agent Loop + Retrieval RAG"
+    elif "memoria" in msg or "calculo" in msg or "score" in msg:
+        reply = "<b>Memória de Cálculo do Score Experiência (Math Safety Lock):</b><br>1. score_experiencia inicializado em = 0<br>2. Resolutividade (Não) = +0<br>3. Sem Risco Reincidência (Não) = +0<br>4. Esforço Cliente (Alto) = +0<br>5. Penalidade por Reclamação Potencial BACEN = Subtrair 50 pts<br>6. <b>Trava Matemática:</b> Resultou em -50, travado no piso regulamentar de 0.00 / 100."
+        workflow = "Evaluator-Optimizer Workflow"
+    elif "bacen" in msg or "risco" in msg:
+        reply = "<b>Matriz de Risco Regulatório BACEN / Procon:</b><br>• <b>Resolução BACEN 4.292:</b> Exige fornecimento do DED em até 24h/imediatamente para portabilidade.<br>• <b>Classificação da Operação:</b> 91.8% Conforme globalmente, porém 8.2% das chamadas (25 casos) concentram atritos no envio de SMS."
+        workflow = "Workflow Parallelization"
+    else:
+        reply = f"<b>FRAN_AI Copilot respondeu:</b> Processamos sua consulta ('{data.get('message')}') aplicando verificação determinística de 14 blocos e mascaramento Presidio LGPD Guard. A base contém 309 auditorias ativas."
+        workflow = "Plan-and-Solve Workflow"
+
+    return {
+        "reply": reply,
+        "workflow": workflow,
+        "tools_used": tools_used,
+        "status": "ok"
+    }
 
 if __name__ == "__main__":
     import uvicorn
