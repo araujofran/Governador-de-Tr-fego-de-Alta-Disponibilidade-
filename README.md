@@ -7,7 +7,7 @@
 [![Test Coverage](https://img.shields.io/badge/Test_Coverage-100%25-brightgreen.svg?logo=pytest&logoColor=white)](https://docs.pytest.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An **Enterprise-Grade High-Availability LLM Traffic Controller & Quality Auditor System** projetado para auditoria massiva de atendimentos de call center (contrato **Banco Daycoval**). 
+An **Enterprise-Grade High-Availability LLM Traffic Controller & Quality Auditor System** projetado para auditoria massiva de atendimentos de call center (). 
 
 Engenheirado sob o princípio **PYTHON FIRST → BANCO DE DADOS → LLM LAST**, o sistema elimina desperdício de tokens, previne bloqueios de API por estouro de cota (HTTP 429/413), garante resiliência total contra falhas (0% de perda de tarefas) e provê visibilidade financeira detalhada de **FinOps LLM** e telemetria em tempo real.
 
