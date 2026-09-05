@@ -275,11 +275,11 @@ HTML_PAGE = """<!DOCTYPE html>
 
                 <!-- Navigation Tabs / Interface Switcher -->
                 <nav class="flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 text-xs font-semibold" id="navTabs">
-                    <button id="tabExecutive" onclick="switchTab('executive')" class="px-4 py-2 rounded-lg text-white bg-amber-500/20 text-amber-300 border border-amber-500/30 transition flex items-center space-x-2">
+                    <button id="tabExecutive" onclick="switchTab('executive')" class="px-4 py-2 rounded-lg text-white bg-amber-500/20 text-amber-300 border border-amber-500/30 transition flex items-center space-x-2 hidden">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
                         <span>📊 Dashboard Executivo SaaS</span>
                     </button>
-                    <button id="tabInfra" onclick="switchTab('infra')" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                    <button id="tabInfra" onclick="switchTab('infra')" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2 hidden">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         <span>⚡ Infraestrutura & FinOps (Dev/Admin)</span>
                     </button>
@@ -591,6 +591,11 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         function switchTab(tab) {
+            if (!currentUser) return;
+            if (tab === 'infra' && !currentUser.can_access_infra) return;
+            if (tab === 'executive' && !currentUser.can_access_executive) return;
+            if (tab === 'admin_perm' && currentUser.role !== 'admin') return;
+
             document.getElementById('viewExecutive').classList.toggle('hidden', tab !== 'executive');
             document.getElementById('viewInfra').classList.toggle('hidden', tab !== 'infra');
             document.getElementById('viewAdminPerm').classList.toggle('hidden', tab !== 'admin_perm');
@@ -623,6 +628,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
         async function fetchFinOps() {
             const res = await fetch('/api/finops');
+            if (!res.ok) return;
             const data = await res.json();
             const s = data.summary;
             const proj = data.projections;
@@ -709,22 +715,42 @@ HTML_PAGE = """<!DOCTYPE html>
 
         function openModal(audit) {
             const content = document.getElementById('modalContent');
+            
+            // Extract Pydantic scorecard fields with fallbacks
+            const cxScore = audit.cx_score !== undefined ? audit.cx_score : Math.round(audit.overall_score || 85);
+            const opQuality = audit.operator_quality_score !== undefined ? audit.operator_quality_score : Math.round(audit.overall_score || 80);
+            const techScore = audit.technical_score !== undefined ? audit.technical_score : Math.round(audit.overall_score || 82);
+            const behScore = audit.behavioral_score !== undefined ? audit.behavioral_score : Math.round(audit.overall_score || 88);
+            
+            // Format identified risks
+            let risksList = [];
+            if (Array.isArray(audit.identified_risks)) {
+                risksList = audit.identified_risks;
+            } else if (typeof audit.identified_risks === 'string') {
+                try { risksList = JSON.parse(audit.identified_risks); } catch(e) { risksList = [audit.identified_risks]; }
+            }
+
+            const risksBadges = risksList.length > 0 
+                ? risksList.map(r => `<span class="px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20 text-xs">${r}</span>`).join(' ')
+                : `<span class="text-slate-400 text-xs italic">Nenhum risco crítico identificado nesta transcrição.</span>`;
+
             content.innerHTML = `
                 <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                     <div>
                         <div class="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded-md bg-amber-500/10 text-amber-400 text-[10px] font-bold border border-amber-500/20 mb-1">
-                            <span>Auditoria de Atendimento • Banco Engineer AI</span>
+                            <span>Relatório de Auditoria Pydantic • Banco Engineer AI</span>
                         </div>
                         <h2 class="text-xl font-extrabold text-white">${audit.filename}</h2>
-                        <div class="text-xs text-slate-400 mt-0.5">Protocolo: <strong class="text-slate-200">${audit.protocol_number}</strong> • Operador: <strong class="text-slate-200">${audit.operator_name}</strong></div>
+                        <div class="text-xs text-slate-400 mt-0.5">Protocolo: <strong class="text-slate-200">${audit.protocol_number || 'N/A'}</strong> • Operador: <strong class="text-slate-200">${audit.operator_name || 'Operador'}</strong></div>
                     </div>
                 </div>
 
+                <!-- Top KPI Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-center">
-                        <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Score Final</div>
+                        <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Score Final Geral</div>
                         <div class="text-3xl font-extrabold text-emerald-400 mt-1">${audit.overall_score}</div>
-                        <div class="text-[10px] text-slate-400">Scorecard de 0 a 100</div>
+                        <div class="text-[10px] text-slate-400">Ponderado (0-100)</div>
                     </div>
 
                     <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-center">
@@ -733,8 +759,8 @@ HTML_PAGE = """<!DOCTYPE html>
                     </div>
 
                     <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-center">
-                        <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Causa Raiz</div>
-                        <div class="text-xs font-bold text-amber-300 mt-2">${audit.root_cause || 'Nao identificado'}</div>
+                        <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Responsável</div>
+                        <div class="text-xs font-bold text-amber-300 mt-2">${audit.problem_owner || 'Nao identificado'}</div>
                     </div>
 
                     <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-center">
@@ -743,19 +769,84 @@ HTML_PAGE = """<!DOCTYPE html>
                     </div>
                 </div>
 
+                <!-- Pydantic CXScorecard 4D Breakdown -->
+                <div class="bg-slate-900/90 p-5 rounded-2xl border border-amber-500/20 space-y-4">
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+                        <span>Scorecard de Atendimento Pydantic (Dimenões CX)</span>
+                    </h4>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="space-y-1.5 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <div class="flex justify-between font-semibold">
+                                <span class="text-slate-300">🎯 Experiência do Cliente (CX)</span>
+                                <span class="text-emerald-400 font-mono">${cxScore} / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2">
+                                <div class="bg-emerald-500 h-2 rounded-full" style="width: ${cxScore}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <div class="flex justify-between font-semibold">
+                                <span class="text-slate-300">👔 Qualidade do Operador</span>
+                                <span class="text-emerald-400 font-mono">${opQuality} / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: ${opQuality}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <div class="flex justify-between font-semibold">
+                                <span class="text-slate-300">⚙️ Aderência Técnica & Procedimentos</span>
+                                <span class="text-emerald-400 font-mono">${techScore} / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2">
+                                <div class="bg-amber-500 h-2 rounded-full" style="width: ${techScore}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <div class="flex justify-between font-semibold">
+                                <span class="text-slate-300">💬 Tom & Empatia Comportamental</span>
+                                <span class="text-emerald-400 font-mono">${behScore} / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: ${behScore}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contractual Risk & Root Cause Analysis -->
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Análise de Risco Contratual & Causa Raiz</h4>
+                    <div class="text-xs text-slate-300 space-y-2">
+                        <div><strong>Causa Raiz:</strong> <span class="text-amber-300 font-medium">${audit.root_cause || 'Sem desalinhamento crítico.'}</span></div>
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
+                            <strong class="text-slate-400">Riscos Identificados:</strong>
+                            ${risksBadges}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Executive Summary -->
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-2">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Resumo Executivo do Atendimento</h4>
                     <p class="text-sm text-slate-200 leading-relaxed">${audit.executive_summary}</p>
                 </div>
 
+                <!-- Literal Evidence Quote -->
                 <div class="bg-slate-900 p-5 rounded-2xl border border-amber-500/20 space-y-2">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
-                        <span>Citação Literal da Evidência</span>
+                        <span>Citação Literal da Evidência (Extraída da Transcrição)</span>
                     </h4>
                     <p class="text-xs italic text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono">"${audit.evidence_quote || 'Evidência confirmada durante o atendimento.'}"</p>
                 </div>
 
+                <!-- Technical Justification -->
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-2">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Justificativa Técnica da Nota</h4>
                     <p class="text-xs text-slate-300">${audit.score_justification}</p>
@@ -867,7 +958,9 @@ def get_kpis():
     return db.get_kpi_summary()
 
 @app.get("/api/finops")
-def get_finops():
+def get_finops(user: Optional[Dict[str, Any]] = Depends(get_current_user)):
+    if not user or not user.get("can_access_infra", False):
+        raise HTTPException(status_code=403, detail="Acesso restrito à equipe de Infraestrutura/FinOps.")
     summary = db.get_finops_summary()
     projections = finops_engine.calculate_capacity_projections(
         avg_input_tokens_per_call=summary.get("avg_input_per_call", 1800),
@@ -889,3 +982,8 @@ def get_single_audit(audit_id: int):
         if a["id"] == audit_id:
             return a
     raise HTTPException(status_code=404, detail="Audit not found")
+
+if __name__ == "__main__":
+    import uvicorn
+    print("Iniciando Web Dashboard AuditAI em: http://127.0.0.1:8080")
+    uvicorn.run("web_dashboard:app", host="127.0.0.1", port=8080, reload=False)
