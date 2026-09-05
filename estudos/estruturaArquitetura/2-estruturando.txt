@@ -1,0 +1,18 @@
+Para o seu projeto de auditoria de transcrições bancárias, as bibliotecas ideais focam em orquestração de LLMs, validação rígida de dados e segurança da informação (LGPD), substituindo as ferramentas tradicionais de NLP estatístico.
+
+**Orquestração e Estruturação de Dados**
+
+* **Instructor:** É o equivalente perfeito ao `yfinance` para o seu caso. Ela se integra à API da LLM (como OpenAI ou Anthropic) e força a inteligência artificial a devolver a resposta já validada diretamente em um modelo **Pydantic**. Resolve instantaneamente o seu problema de garantir que a "Estrutura Interna de Análise" retorne no formato JSON exato.
+* **LiteLLM:** Útil se você precisar alternar entre diferentes modelos (como GPT-4o e Claude 3.5) ou utilizar instâncias corporativas seguras (como Azure OpenAI), padronizando a sintaxe do código em um formato único.
+
+**Segurança e Mascaramento (Pré-LLM)**
+
+* **Microsoft Presidio:** Essencial para transcrições do setor bancário. É uma biblioteca de anonimização de nível empresarial que detecta e oculta dados sensíveis (PII como CPFs, números de conta, valores e telefones) antes de o texto ser enviado para a nuvem. É mais segura, rápida e escalável do que tentar prever todos os cenários apenas com **Regex**.
+
+**Testes de IA e Qualidade**
+
+* **Promptfoo:** Enquanto o **Pytest** testa a lógica do seu script em Python, o Promptfoo testa a consistência da própria LLM. Ele permite criar matrizes com dezenas de transcrições de teste para garantir que o seu "Motor de Decisão" não está alucinando e está aplicando as penalidades de inaderência corretamente a cada versão nova do prompt.
+
+**Apresentação Visual**
+
+* **Rich:** Mantém-se como a escolha definitiva em Python para renderizar o seu relatório final de 14 blocos no terminal. Possui suporte nativo para tabelas complexas, formatação de cores (ideal para destacar a classificação do "Score Operador") e painéis executivos.

@@ -1,0 +1,100 @@
+Para o seu projeto, o melhor output estruturado consiste em um modelo de duas camadas estritamente exigido pelo seu arquivo de diretrizes.
+
+**1. Estrutura Interna de Análise (JSON Oculto)**
+
+* Esta camada processa cálculos, validações e notas brutas sem exibi-las diretamente, garantindo que o Score do Operador e o Score de Experiência não se misturem e que nenhuma regra técnica seja ignorada.
+
+
+* Utiliza o padrão rígido de chave-valor para todos os campos avaliativos, como `{"classificacao": "...", "justificativa": "...", "nota": ...}`.
+
+
+* Esta estrutura **só deve ser mostrada** se houver uma solicitação explícita por "JSON", "payload", "dados brutos" ou "integração".
+
+
+
+**2. Relatório Executivo Visual (Layout Obrigatório Analises_Replica_X2D_Eber)**
+
+* Esta é a saída de apresentação (fonte de verdade para o leitor humano), que consome os dados do JSON interno e os transforma em tabelas, cards e texto legível.
+
+
+* O output visual final **deve conter exatamente 14 blocos sequenciais**, sem omissões ou mudanças de ordem, divididos em duas grandes sessões:
+
+
+
+**Primeira Sessão: Avaliação do Operador**
+
+* 1. Cabeçalho do Atendimento (Contendo apenas a nota final do operador)
+
+
+
+
+* 2. Visão Geral da Monitoria (Classificação do nível de atenção do caso)
+
+
+
+
+* 3. Feedback da Monitoria (Pontos positivos, de melhoria e coaching)
+
+
+
+
+* 4. Nota da Monitoria
+
+
+
+
+* 5. Detalhamento da Monitoria (Relacionamento, Resolutividade e CX)
+
+
+
+
+* 6. Inaderências
+
+
+
+
+
+**Segunda Sessão: INTELIGÊNCIA DE CX E QUALIDADE**
+
+* 7. Diagnóstico da Experiência (Onde o Score Experiência é exibido)
+
+
+
+
+* 8. Esforço e Fricção da Jornada
+
+
+
+
+* 9. Riscos e Impactos
+
+
+
+
+* 10. Causa Raiz e Responsabilidade
+
+
+
+
+* 11. Insights da Interação
+
+
+
+
+* 12. Falhas Operacionais Identificadas
+
+
+
+
+* 13. Recomendações e Plano de Ação
+
+
+
+
+* 14. Conclusão Executiva
+
+
+
+
+
+O uso dessa arquitetura dupla é a forma ideal para garantir a integração sistêmica (via JSON) e a legibilidade executiva (via Markdown visual) do seu motor de monitoria.

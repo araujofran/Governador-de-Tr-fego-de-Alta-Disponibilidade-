@@ -1,0 +1,40 @@
+┌────────────────────────────────────────────────────────┐
+│                   PYTHON (CAMADAS 1-10)                │
+│                                                        │
+│ • Ingestão, Hash SHA-256 e deduplicação                │
+│ • Limpeza de caracteres corrompidos                    │
+│ • Identificação de turnos (CLIENTE / ATENDENTE)       │
+│ • Extração determinística (CPF, Protocolos, Valores)   │
+│ • Indexação de Linhas e Geração de Evidence_IDs        │
+│ • Checagem de Qualidade de Dados (Data Quality Score) │
+│ • Fila Persistente no SQLite + Token Estimator         │
+└───────────────────────────┬────────────────────────────┘
+                            │ (Dados Limpos + Evidências Indexadas)
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                 LLM + CONTRATO (CAMADA 11)             │
+│                                                        │
+│ Executa integralmente o 1-promptAnaliseAtendimentos.txt│
+│                                                        │
+│ • Avaliação Comportamental (Empatia, Tom, Cortesia)   │
+│ • Julgamento Semântico de Resolutividade              │
+│ • Classificação de Humor e Nível de Esforço            │
+│ • Determinação de Causa Raiz e Atribuição de Culpa     │
+│ • Cálculo do Score Final e Justificativas com Evidência│
+└───────────────────────────┬────────────────────────────┘
+                            │ (JSON Estruturado)
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                 PYTHON (CAMADAS 12-13)                 │
+│                                                        │
+│ • Validação de Schema Pydantic                         │
+│ • Auditoria de consistência das justificativas         │
+│ • Persistência Final no SQLite (5+ tabelas)           │
+│ • Telemetria de Economia de Tokens e Dashboard         │
+
+└────────────────────────────────────────────────────────┘
+
+
+🟢 Resumo
+O contrato não perde nenhuma vírgula. Python assume a carga braçal e repetitiva (limpeza, busca de dados exatos, indexação, controle de fila e validação de regras de banco), 
+enquanto a LLM recebe tudo "mastigado" e foca 100% da sua capacidade e contexto na análise semântica crítica do atendimento bancário.

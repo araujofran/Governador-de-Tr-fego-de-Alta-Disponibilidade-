@@ -1,0 +1,145 @@
+gemini-3.6-flash
+
+# Gemini 3.6 Flash
+
+Gemini 3.6 Flash provides sustained frontier-level intelligence optimized for
+real-world tasks at a higher speed and lower cost. Designed for the agentic era,
+it excels at code generation, agentic execution, and spatial reasoning. This model is particularly effective for rapid agentic loops involving
+complex coding cycles and iterations.
+
+{% button href="https://aistudio.google.com/prompts/new_chat?model=gemini-3.6-flash" variant="ais" %}Try in Google AI Studio{% /button %}
+
+## Documentation  {% id="documentation" %}
+
+Visit the
+[Latest model](/docs/latest-model)
+page for full coverage of features and capabilities.
+
+## gemini-3.6-flash  {% id="gemini-36-flash" %}
+
+{% table variant="model" %}
+  * Property
+  * Description
+
+  ---
+
+  *     {% icon name="id_card" /%}
+
+Model code
+  * `gemini-3.6-flash`
+
+  ---
+
+  *     {% icon name="save" /%}
+
+Supported data types
+  *     **Inputs** Text, Image, Video, Audio, and PDF
+
+    **Output** Text
+
+
+  ---
+
+  *     {% icon name="token_auto" /%}
+
+Token limits{% sup %}[[*]](/docs/tokens){% /sup %}
+  *     **Input token limit** 1,048,576
+
+    **Output token limit** 65,536
+
+
+  ---
+
+  *     {% icon name="handyman" /%}
+
+Capabilities
+  *     **Audio generation**
+
+    {% badge type="not-supported" /%}
+
+    **Batch API**
+
+    {% badge type="supported" /%}
+
+    **Caching**
+
+    {% badge type="supported" /%}
+
+    **Code execution**
+
+    {% badge type="supported" /%}
+
+    **Computer use**
+
+    {% badge type="supported" /%}
+
+    **File search**
+
+    {% badge type="supported" /%}
+
+    **Flex inference**
+
+    {% badge type="supported" /%}
+
+    **Function calling**
+
+    {% badge type="supported" /%}
+
+    **Grounding with Google Maps**
+
+    {% badge type="supported" /%}
+
+    **Image generation**
+
+    {% badge type="not-supported" /%}
+
+    **Live API**
+
+    {% badge type="not-supported" /%}
+
+    **Priority inference**
+
+    {% badge type="supported" /%}
+
+    **Search grounding**
+
+    {% badge type="supported" /%}
+
+    **Structured outputs**
+
+    {% badge type="supported" /%}
+
+    **Thinking**
+
+    {% badge type="supported" /%}
+
+    **URL context**
+
+    {% badge type="supported" /%}
+
+
+  ---
+
+  *     {% icon name="123" /%}
+
+Versions
+  *     Read the [model version patterns](/docs/models#model-versions) for more details.
+
+    *   Stable: `gemini-3.6-flash`
+
+
+  ---
+
+  *     {% icon name="calendar_month" /%}
+
+Latest update
+  * July 2026
+
+  ---
+
+  *     {% icon name="id_card" /%}
+
+Model card
+  * [Model card](https://deepmind.google/models/model-cards/gemini-3-6-flash/)
+{% /table %}
+

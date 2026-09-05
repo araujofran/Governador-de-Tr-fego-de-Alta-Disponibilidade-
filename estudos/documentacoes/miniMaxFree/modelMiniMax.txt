@@ -1,0 +1,409 @@
+Favicon for minimax
+MiniMax: MiniMax M3 (free)
+minimax/minimax-m3:free
+
+
+Model weights
+Compare
+Playground
+Try this model
+MiniMax-M3 is a multimodal foundation model from MiniMax. It supports text, image, and video inputs with text output, a 1M-token context window, and is suited for long-horizon agentic work, coding, and tool use. It is built on MiniMax Sparse Attention (MSA), which replaces full attention with KV-block selection to cut per-token compute at long context — roughly 1/20 the cost of the previous generation at 1M tokens, with substantially faster prefill and decode while retaining quality across most tasks.
+
+Trained as a native multimodal model on interleaved data and tuned for multi-turn, production-like collaboration via an interactive user-simulator framework, the model is oriented toward sustained, multi-step tasks rather than single-turn execution.
+
+Show more
+Modalities
+
+Price
+
+Free
+
+Context
+
+1M
+
+Released
+
+May 31, 2026
+
+
+Favicon for minimax
+MiniMax: MiniMax M3 (free)
+Compare
+Playground
+Try this model
+Providers
+Performance
+Uptime
+Benchmarks
+Apps
+Activity
+FAQ
+Explore
+Providers
+Different companies host the same model. OpenRouter routes your request to one of them based on the routing mode you pick — Balanced (price + speed), Nitro (fastest), or Exacto (highest tool-calling accuracy).
+
+
+Free
+free
+Latency / throughput
+
+P50
+p50
+
+Provider
+
+Input /M
+
+Output /M
+
+Latency
+
+Throughput
+
+Uptime
+
+Favicon for GMICloud
+GMICloud
+Free	Free	1.84s	47 tps	
+99.96%
+Performance
+Throughput is how fast the model writes (tokens per second — higher is better). Latency is total round-trip time (lower is better). TTFT is time-to-first-token — how long before you see anything appear (lower is better).
+
+Throughput
+
+47tok/s
+
+P50, best across providers
+
+Latency
+
+1.84s
+
+P50, best provider
+
+
+All locations
+all
+
+1 week
+1w
+Throughput
+
+P99
+Avg
+183 tok/s
+P95
+Avg
+132 tok/s
+P90
+Avg
+106 tok/s
+P75
+Avg
+69 tok/s
+P50
+Avg
+38 tok/s
+Latency
+
+P50
+Avg
+2.70 s
+P75
+Avg
+4.97 s
+P90
+Avg
+9.31 s
+P95
+Avg
+14.01 s
+P99
+Avg
+31.53 s
+E2E Latency
+
+P50
+Avg
+8.59 s
+P75
+Avg
+15.86 s
+P90
+Avg
+30.61 s
+P95
+Avg
+47.93 s
+P99
+Avg
+126.82 s
+AutoExacto Benchmarks
+
+GPQA Diamond
+TAU-Bench
+vgi_bench
+Together
+89.1%
+76.5%
+--
+ModelRun
+88.6%
+74.1%
+--
+Minimax
+90.9%
+70.9%
+--
+SambaNova
+80.6%
+--
+--
+DeepInfra
+89.2%
+71.1%
+--
++9 more providers
+Tool Call Error Rate
+
+GMICloud
+Avg
+2.61 %
+Structured Output Error Rate
+
+Cache Hit Rate
+
+GMICloud
+Avg
+85.09 %
+Uptime
+Uptime is the percentage of the past 3 days that at least one provider was responding to requests. Availability is the percentage of time that inference was successfully served. OpenRouter continuously monitors and uses the next-best provider when one returns an error.
+
+Uptime (3d)
+
+100.00%
+
+Availability (3d)
+
+99.63%
+
+Availability over the last 3 days
+Sep 2, 7 AM - Sep 5, 7 AM
+Availability 99.63%
+Wed
+Thu
+Fri
+Now
+Availability over the last 24 hours
+4 de set., 7:10 AM
+11:10 AM
+3:10 PM
+7:10 PM
+11:10 PM
+3:10 AM
+7:10 AM
+90%
+93%
+96%
+100%
+OpenRouter Availability
+99.85%
+When an error occurs in an upstream provider, we can recover by routing to another healthy provider, if your request filters allow it. You can access per-provider uptime data programmatically through the Endpoints API. Learn more about our load balancing and customization options.
+
+Benchmarks
+Scores on standardized evaluations. Higher percentages are better — and rank percentile shows where this model lands among all models on OpenRouter.
+
+Artificial Analysis
+Design Arena
+35.7
+
+Artificial Analysis
+
+Intelligence Index
+
+Better than 19% of models compared
+58.6
+
+Artificial Analysis
+
+Coding Index
+
+Better than 66% of models compared
+31.0
+
+Artificial Analysis
+
+Agentic Index
+
+Better than 50% of models compared
+Reasoning
+GPQA Diamond
+
+
+Graduate-level scientific reasoning
+
+92.9%
+
+HLE
+
+
+Humanity's Last Exam
+
+39.0%
+
+IFBench
+
+
+Instruction-following benchmark
+
+82.9%
+
+τ²-Bench Telecom
+
+
+Conversational AI agents in dual-control scenarios
+
+88.9%
+
+AA-LCR
+
+
+Long context reasoning evaluation
+
+83.0%
+
+GDPval-AA
+
+
+Economically valuable tasks
+
+40.4%
+
+CritPt
+
+
+Research-level physics reasoning
+
+3.7%
+
+Coding
+SciCode
+
+
+Python programming for scientific computing
+
+47.1%
+
+Terminal-Bench Hard
+
+
+Agentic coding & terminal use
+
+42.4%
+
+Knowledge
+AA-Omniscience Accuracy
+
+
+Proportion of correctly answered questions
+
+16.7%
+
+AA-Omniscience Non-Hallucination Rate
+
+
+Rate of avoiding hallucination among non-correct responses
+
+81.6%
+
+Metrics sourced from Artificial Analysis
+Apps
+Public apps that send the most traffic to this model. Good signal for what real production workloads look like — and a hint at which use cases this model is best suited for.
+
+1.
+Favicon for https://kilocode.ai/
+Kilo Code 
+Kilo Code is an open-source AI coding agent that works across VS Code, JetBrains, and CLI to help developers ship code faster with agentic workflows.
+817Btokens
+2.
+Favicon for https://nousresearch.com
+Hermes Agent 
+Hermes Agent is an open-source, self-improving AI agent by Nous Research that runs persistently with memory across sessions, and builds reusable skills from experience. It comes with 40+ built-in tools, including web search, browser automation, and vision, plus scheduled automations and subagents.
+795Btokens
+3.
+Favicon for https://claude.ai/apple-touch-icon.png
+Claude Code 
+Claude Code is Anthropic's agentic coding tool that reads your entire codebase, plans and executes changes across files, runs tests, and iterates on failures, all from natural language prompts.
+655Btokens
+4.
+Favicon for https://omp.sh/
+omp 
+new
+220Btokens
+5.
+Favicon for https://github.com/deepseek-ai/deepseek-harness
+DeepSeek Harness 
+new
+204Btokens
+25 de ago.
+28 de ago.
+31 de ago.
+3 de set.
+Activity
+Token volume and request traffic to this model over time.
+
+
+Tokens
+Tokens
+25 de ago.
+27 de ago.
+29 de ago.
+31 de ago.
+2 de set.
+4 de set.
+250B
+500B
+750B
+1T
+Prompt
+354B
+Completion
+2,61B
+Reasoning
+334M
+Prompt tokens measure input size. Reasoning tokens show internal thinking before a response. Completion tokens reflect total output length.
+
+Frequently asked questions
+What is MiniMax M3 (free)?
+Is MiniMax M3 (free) free?
+What is the context length of MiniMax M3 (free)?
+Does MiniMax M3 (free) support tool calling and structured outputs?
+What inputs and outputs does MiniMax M3 (free) support?
+What other text models does MiniMax have?
+When was MiniMax M3 (free) released?
+Explore more models
+AI Models with Vision: Multimodal LLMs for Image Understanding
+Collection
+AI Model Rankings
+Ranking
+More models from MiniMax
+H3 Max
+MiniMax H3 Max is a video-generation model from MiniMax, jointly released with fal.ai. Derived through additional training from MiniMax H3, it is designed for faster text-to-video and image-to-video generation with controlled first-frame or last-frame keyframes.
+
+Video
+from $0.05/second
+H3
+MiniMax H3 is a lightweight, open-weights video generation model from MiniMax. It is designed for precise multimodal editing and controlled content generation, including instruction-guided edits, text and brand rendering, and video-to-video motion transfer.
+
+The model is suited for commercial creative workflows across advertising, e-commerce, gaming, and interface design, with native audiovisual output for reference-driven generation.
+
+Video
+from $0.13/second
+Speech 2.8 HD
+MiniMax Speech 2.8 HD is a text-to-speech model from MiniMax. It is suited for applications that generate spoken audio from text and accepts arbitrary MiniMax voice IDs.
+
+Speech
+$100/M characters
+Speech 2.8 Turbo
+Mini
