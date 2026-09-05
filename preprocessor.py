@@ -32,7 +32,15 @@ class TextPreprocessor:
 
         masked_count = 0
 
-        # 2. Mascaramento de PII
+        # 2. Mascaramento de PII via PrivacyGuard (Presidio + Regex)
+        try:
+            from privacy_guard import privacy_guard
+            text, meta = privacy_guard.anonymize_transcript(text)
+            masked_count += meta.get("pii_detected_count", 0)
+        except Exception:
+            pass
+
+        # Mascaramento nativo complementar
         text, n_email = self.email_pattern.subn('[EMAIL_MASCARADO]', text)
         masked_count += n_email
 

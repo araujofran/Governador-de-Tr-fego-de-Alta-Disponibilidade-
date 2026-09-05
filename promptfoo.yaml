@@ -1,0 +1,24 @@
+# promptfoo.yaml - Suíte de Avaliação de Regressão de Prompts de Auditoria Bancária
+description: "Avaliação da Consistência de Prompts LLM para Auditoria de Chamadas Banco Engineer AI"
+
+prompts:
+  - file://prompts/audit_system_prompt.txt
+
+providers:
+  - groq:llama-3.3-70b-versatile
+  - google:gemini-1.5-flash
+
+tests:
+  - description: "Atendimento com postura adequada do operador"
+    vars:
+      transcript: "CLIENTE: Gostaria de saber o saldo da minha conta. ATENDENTE: Pois não! Vou confirmar seus dados por segurança..."
+    assert:
+      - type: javascript
+        value: "output.includes('score_final') && output.includes('scorecard')"
+
+  - description: "Atendimento com risco e inaderência comportamental"
+    vars:
+      transcript: "CLIENTE: Quero cancelar meu cartão! ATENDENTE: Ah, cancela você no app então..."
+    assert:
+      - type: javascript
+        value: "output.includes('Alto') || output.includes('Crítico') || output.includes('Médio')"

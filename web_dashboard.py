@@ -220,6 +220,12 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
 
                 <div class="flex items-center space-x-4">
+                    <!-- Privacy Badge -->
+                    <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                        <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                        <span>LGPD Presidio Guard Ativo</span>
+                    </div>
+
                     <!-- Search Bar -->
                     <div class="relative hidden sm:block w-64">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
