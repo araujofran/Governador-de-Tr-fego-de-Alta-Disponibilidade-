@@ -198,14 +198,14 @@ HTML_PAGE = """<!DOCTYPE html>
                         <p class="text-xs text-slate-400">Faça login para acessar sua plataforma.</p>
                     </div>
 
-                    <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <form id="loginForm" onsubmit="handleLogin(event); return false;" action="javascript:void(0);" class="space-y-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1.5">Seu e-mail ou usuário</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path></svg>
                                 </span>
-                                <input type="text" id="loginUsername" required placeholder="admin@engineer.ai ou usuario@engineer.ai" class="w-full pl-10 pr-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition placeholder:text-slate-600">
+                                <input type="text" id="loginUsername" required placeholder="admin ou usuario" class="w-full pl-10 pr-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition placeholder:text-slate-600">
                             </div>
                         </div>
 
@@ -224,12 +224,12 @@ HTML_PAGE = """<!DOCTYPE html>
                                 <input type="checkbox" checked class="rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-amber-400">
                                 <span>Lembrar de mim</span>
                             </label>
-                            <a href="#" onclick="alert('Credenciais padrão:\nADMIN -> Login: admin | Senha: admin1\nUSUÁRIO -> Login: usuario | Senha: usuario1')" class="text-amber-400 hover:underline">Esqueceu sua senha?</a>
+                            <a href="javascript:void(0)" onclick="alert('Credenciais padrão:\nADMIN -> Login: admin | Senha: admin1\nUSUÁRIO -> Login: usuario | Senha: usuario1')" class="text-amber-400 hover:underline">Esqueceu sua senha?</a>
                         </div>
 
                         <div id="loginError" class="text-xs text-rose-400 font-semibold hidden bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20 text-center"></div>
 
-                        <button type="submit" class="w-full py-3.5 font-bold text-slate-950 rounded-xl gold-gradient-btn transition shadow-lg flex items-center justify-center space-x-2 text-sm tracking-wide">
+                        <button type="button" onclick="handleLogin(event)" class="w-full py-3.5 font-bold text-slate-950 rounded-xl gold-gradient-btn transition shadow-lg flex items-center justify-center space-x-2 text-sm tracking-wide">
                             <span>Entrar</span>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
@@ -568,6 +568,9 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         async function checkSession() {
+            if (window.location.search) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
             try {
                 const res = await authFetch('/api/me');
                 if (res.ok) {
