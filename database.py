@@ -522,11 +522,14 @@ class AuditDatabase:
                 a.executive_summary, a.call_classification, a.overall_score, a.score_justification, a.created_at,
                 s.cx_score, s.operator_quality_score, s.technical_score, s.behavioral_score, s.resolutivity,
                 r.risk_level, r.identified_risks, r.root_cause, r.problem_owner, r.evidence_quote,
-                t.provider_used, t.input_tokens, t.output_tokens, t.latency_sec, t.masked_pii_count
+                t.provider_used, t.input_tokens, t.output_tokens, t.latency_sec, t.masked_pii_count,
+                tr.transcricao_original
             FROM audits a
             LEFT JOIN scorecards s ON a.id = s.audit_id
             LEFT JOIN risk_analyses r ON a.id = r.audit_id
             LEFT JOIN telemetry_logs t ON a.id = t.audit_id
+            LEFT JOIN atendimentos at ON at.filename = a.filename
+            LEFT JOIN transcricoes tr ON tr.atendimento_id = at.atendimento_id
             ORDER BY a.id DESC
             LIMIT ?
             """

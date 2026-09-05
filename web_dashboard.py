@@ -734,6 +734,19 @@ HTML_PAGE = """<!DOCTYPE html>
                 ? risksList.map(r => `<span class="px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20 text-xs">${r}</span>`).join(' ')
                 : `<span class="text-slate-400 text-xs italic">Nenhum risco crítico identificado nesta transcrição.</span>`;
 
+            // Format full transcript line by line with speaker badges
+            const fullText = audit.transcricao_original || "Transcrição de áudio em processamento no banco de dados.";
+            const formattedTranscriptLines = fullText.split('\n').map(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return '';
+                if (trimmed.toLowerCase().startsWith('atendente:') || trimmed.toLowerCase().startsWith('operador:')) {
+                    return `<div class="bg-amber-950/40 border-l-4 border-amber-500 p-3 rounded-r-xl text-xs text-amber-200"><strong class="text-amber-400 block mb-1">OPERADOR</strong> ${trimmed.substring(trimmed.indexOf(':')+1)}</div>`;
+                } else if (trimmed.toLowerCase().startsWith('cliente:')) {
+                    return `<div class="bg-slate-900 border-l-4 border-blue-500 p-3 rounded-r-xl text-xs text-slate-200"><strong class="text-blue-400 block mb-1">CLIENTE</strong> ${trimmed.substring(trimmed.indexOf(':')+1)}</div>`;
+                }
+                return `<div class="bg-slate-950 p-2.5 rounded-lg text-xs text-slate-300 font-mono">${trimmed}</div>`;
+            }).filter(Boolean).join('');
+
             content.innerHTML = `
                 <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                     <div>
@@ -743,6 +756,10 @@ HTML_PAGE = """<!DOCTYPE html>
                         <h2 class="text-xl font-extrabold text-white">${audit.filename}</h2>
                         <div class="text-xs text-slate-400 mt-0.5">Protocolo: <strong class="text-slate-200">${audit.protocol_number || 'N/A'}</strong> • Operador: <strong class="text-slate-200">${audit.operator_name || 'Operador'}</strong></div>
                     </div>
+                    <button onclick="toggleTranscriptBox()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold rounded-xl transition shadow-lg flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                        <span id="btnTransText">💬 Transcrição Íntegra (1-Click)</span>
+                    </button>
                 </div>
 
                 <!-- Top KPI Summary Cards -->
@@ -769,11 +786,22 @@ HTML_PAGE = """<!DOCTYPE html>
                     </div>
                 </div>
 
+                <!-- Full Audio Transcript 1-Click Box -->
+                <div id="transcriptContainer" class="hidden space-y-3 bg-black p-5 rounded-2xl border border-amber-500/30">
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-2 border-b border-slate-800 pb-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                        <span>Transcrição na Íntegra da Ligação de Áudio</span>
+                    </h4>
+                    <div class="space-y-2 max-h-96 overflow-y-auto pr-2 font-mono">
+                        ${formattedTranscriptLines}
+                    </div>
+                </div>
+
                 <!-- Pydantic CXScorecard 4D Breakdown -->
                 <div class="bg-slate-900/90 p-5 rounded-2xl border border-amber-500/20 space-y-4">
                     <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-                        <span>Scorecard de Atendimento Pydantic (Dimenões CX)</span>
+                        <span>Scorecard de Atendimento Pydantic (Dimensões CX)</span>
                     </h4>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -841,7 +869,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 <div class="bg-slate-900 p-5 rounded-2xl border border-amber-500/20 space-y-2">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
-                        <span>Citação Literal da Evidência (Extraída da Transcrição)</span>
+                        <span>Citação Literal da Evidência Extraída da Transcrição</span>
                     </h4>
                     <p class="text-xs italic text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono">"${audit.evidence_quote || 'Evidência confirmada durante o atendimento.'}"</p>
                 </div>
@@ -853,6 +881,18 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
             `;
             document.getElementById('auditModal').classList.remove('hidden');
+        }
+
+        function toggleTranscriptBox() {
+            const container = document.getElementById('transcriptContainer');
+            const btn = document.getElementById('btnTransText');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                btn.innerText = '🔼 Ocultar Transcrição';
+            } else {
+                container.classList.add('hidden');
+                btn.innerText = '💬 Transcrição Íntegra (1-Click)';
+            }
         }
 
         function closeModal() {
