@@ -411,6 +411,14 @@ HTML_PAGE = """<!DOCTYPE html>
                         </div>
                     </div>
 
+                    <!-- Filter Pills Bar (HospitIQ UI UX Pattern) -->
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+                        <button onclick="setQuickPillFilter('ALL')" id="pill-ALL" class="px-3.5 py-1.5 rounded-full font-bold bg-indigo-600 text-white border border-indigo-500 transition shadow">✨ Todos (<span id="pill-cnt-all">309</span>)</button>
+                        <button onclick="setQuickPillFilter('CRITICAL')" id="pill-CRITICAL" class="px-3.5 py-1.5 rounded-full font-bold bg-slate-900 text-rose-400 border border-slate-800 hover:border-rose-500/40 transition">🚨 Risco Crítico / Alto (<span id="pill-cnt-crit">12</span>)</button>
+                        <button onclick="setQuickPillFilter('TOP')" id="pill-TOP" class="px-3.5 py-1.5 rounded-full font-bold bg-slate-900 text-emerald-400 border border-slate-800 hover:border-emerald-500/40 transition">🏆 Top Performers (>=85) (<span id="pill-cnt-top">245</span>)</button>
+                        <button onclick="setQuickPillFilter('ATTENTION')" id="pill-ATTENTION" class="px-3.5 py-1.5 rounded-full font-bold bg-slate-900 text-amber-400 border border-slate-800 hover:border-amber-500/40 transition">⚠️ Atenção (<75) (<span id="pill-cnt-att">52</span>)</button>
+                    </div>
+
                     <div class="bg-cardbg rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
@@ -761,6 +769,7 @@ HTML_PAGE = """<!DOCTYPE html>
             renderExecTable(cachedAudits);
             renderHomePreview(cachedAudits);
             renderCXDonutChart(cachedAudits);
+            updatePillCounts(cachedAudits);
         }
 
         async function fetchOperators() {
@@ -1024,7 +1033,48 @@ HTML_PAGE = """<!DOCTYPE html>
             });
         }
 
-        // OPEN SLIDE-OVER RIGHT DRAWER (Behance Image 4)
+        function setQuickPillFilter(filterType) {
+            const pills = ['ALL', 'CRITICAL', 'TOP', 'ATTENTION'];
+            pills.forEach(p => {
+                const btn = document.getElementById('pill-' + p);
+                if (btn) {
+                    if (p === filterType) {
+                        btn.className = "px-3.5 py-1.5 rounded-full font-bold bg-indigo-600 text-white border border-indigo-500 transition shadow";
+                    } else {
+                        btn.className = "px-3.5 py-1.5 rounded-full font-bold bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700 transition";
+                    }
+                }
+            });
+
+            const search = document.getElementById('execSearch').value.toLowerCase();
+            const filtered = cachedAudits.filter(a => {
+                const matchSearch = (a.protocol_number || '').toLowerCase().includes(search) || 
+                                    (a.operator_name || '').toLowerCase().includes(search) ||
+                                    (a.filename || '').toLowerCase().includes(search);
+
+                let matchPill = true;
+                if (filterType === 'CRITICAL') matchPill = (a.risk_level === 'Alto' || a.risk_level === 'Crítico');
+                else if (filterType === 'TOP') matchPill = (a.overall_score >= 85);
+                else if (filterType === 'ATTENTION') matchPill = (a.overall_score < 75);
+
+                return matchSearch && matchPill;
+            });
+            renderExecTable(filtered);
+        }
+
+        function updatePillCounts(audits) {
+            const allCnt = audits.length;
+            const critCnt = audits.filter(a => a.risk_level === 'Alto' || a.risk_level === 'Crítico').length;
+            const topCnt = audits.filter(a => a.overall_score >= 85).length;
+            const attCnt = audits.filter(a => a.overall_score < 75).length;
+
+            if (document.getElementById('pill-cnt-all')) document.getElementById('pill-cnt-all').innerText = allCnt;
+            if (document.getElementById('pill-cnt-crit')) document.getElementById('pill-cnt-crit').innerText = critCnt;
+            if (document.getElementById('pill-cnt-top')) document.getElementById('pill-cnt-top').innerText = topCnt;
+            if (document.getElementById('pill-cnt-att')) document.getElementById('pill-cnt-att').innerText = attCnt;
+        }
+
+        // OPEN SLIDE-OVER RIGHT DRAWER (Behance HospitIQ Image 4 UX Pattern)
         function openRightDrawer(audit) {
             document.getElementById('drawerTitle').innerText = audit.filename;
             document.getElementById('drawerSubTitle').innerText = `Protocolo: ${audit.protocol_number || 'N/A'} • Operador: ${audit.operator_name || 'Operador'}`;
@@ -1059,77 +1109,132 @@ HTML_PAGE = """<!DOCTYPE html>
 
             const content = document.getElementById('drawerContent');
             content.innerHTML = `
-                <!-- Top Metric Cards -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold">Score Geral</span>
-                        <div class="text-2xl font-extrabold text-emerald-400 mt-1">${audit.overall_score}</div>
-                    </div>
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold">Nível de Risco</span>
-                        <div class="text-xl font-extrabold ${audit.risk_level === 'Baixo' ? 'text-emerald-400' : 'text-rose-400'} mt-1">${audit.risk_level || 'Baixo'}</div>
-                    </div>
+                <!-- 4 Interactive Tabs Bar (HospitIQ UI Pattern) -->
+                <div class="flex items-center gap-1 border-b border-slate-800 pb-3 mb-4 overflow-x-auto text-[11px]">
+                    <button onclick="switchDrawerTab('tab-scorecard')" id="dtab-btn-scorecard" class="px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white transition">📊 Scorecard 4D</button>
+                    <button onclick="switchDrawerTab('tab-evidences')" id="dtab-btn-evidences" class="px-3 py-1.5 rounded-lg font-bold bg-slate-900 text-slate-400 hover:text-white transition">🎯 Causa Raiz & Evidência</button>
+                    <button onclick="switchDrawerTab('tab-transcript')" id="dtab-btn-transcript" class="px-3 py-1.5 rounded-lg font-bold bg-slate-900 text-slate-400 hover:text-white transition">💬 Transcrição (1-Click)</button>
+                    <button onclick="switchDrawerTab('tab-lgpd')" id="dtab-btn-lgpd" class="px-3 py-1.5 rounded-lg font-bold bg-slate-900 text-emerald-400 hover:text-white transition">🛡️ LGPD Presidio</button>
                 </div>
 
-                <!-- 1-Click Audio Transcript Accordion Button -->
-                <button onclick="toggleDrawerTranscript()" class="w-full py-3 bg-indigo-600/20 hover:bg-indigo-600 border border-indigo-500/30 text-indigo-300 hover:text-white rounded-xl font-extrabold transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-comments"></i>
-                    <span id="drawerBtnTransText">💬 Ver Transcrição Íntegra (1-Click)</span>
-                </button>
-
-                <!-- Transcript Box -->
-                <div id="drawerTranscriptBox" class="hidden space-y-2 max-h-80 overflow-y-auto bg-black p-4 rounded-xl border border-indigo-500/30 font-mono custom-scrollbar">
-                    ${formattedLines}
-                </div>
-
-                <!-- CX Scorecard 4D Progress Bars -->
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
-                    <h4 class="font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-chart-line text-indigo-400"></i> Scorecard Pydantic 4D
-                    </h4>
-                    <div class="space-y-2">
-                        <div>
-                            <div class="flex justify-between font-semibold"><span>🎯 Experiência CX</span><span class="text-emerald-400 font-mono">${cxScore}/100</span></div>
-                            <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-emerald-500 h-2 rounded-full" style="width: ${cxScore}%"></div></div>
+                <!-- TAB 1: Scorecard 4D & Key Metrics -->
+                <div id="dtab-scorecard" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold">Score Geral</span>
+                            <div class="text-2xl font-extrabold text-emerald-400 mt-1">${audit.overall_score}</div>
                         </div>
-                        <div>
-                            <div class="flex justify-between font-semibold"><span>👔 Qualidade Operador</span><span class="text-blue-400 font-mono">${opQuality}/100</span></div>
-                            <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-blue-500 h-2 rounded-full" style="width: ${opQuality}%"></div></div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between font-semibold"><span>⚙️ Aderência Técnica</span><span class="text-amber-400 font-mono">${techScore}/100</span></div>
-                            <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-amber-500 h-2 rounded-full" style="width: ${techScore}%"></div></div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between font-semibold"><span>💬 Tom & Empatia</span><span class="text-purple-400 font-mono">${behScore}/100</span></div>
-                            <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-purple-500 h-2 rounded-full" style="width: ${behScore}%"></div></div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold">Nível de Risco</span>
+                            <div class="text-xl font-extrabold ${audit.risk_level === 'Baixo' ? 'text-emerald-400' : 'text-rose-400'} mt-1">${audit.risk_level || 'Baixo'}</div>
                         </div>
                     </div>
+
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <h4 class="font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-indigo-400"></i> Scorecard Pydantic 4D
+                        </h4>
+                        <div class="space-y-2">
+                            <div>
+                                <div class="flex justify-between font-semibold"><span>🎯 Experiência CX</span><span class="text-emerald-400 font-mono">${cxScore}/100</span></div>
+                                <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-emerald-500 h-2 rounded-full" style="width: ${cxScore}%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between font-semibold"><span>👔 Qualidade Operador</span><span class="text-blue-400 font-mono">${opQuality}/100</span></div>
+                                <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-blue-500 h-2 rounded-full" style="width: ${opQuality}%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between font-semibold"><span>⚙️ Aderência Técnica</span><span class="text-amber-400 font-mono">${techScore}/100</span></div>
+                                <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-amber-500 h-2 rounded-full" style="width: ${techScore}%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between font-semibold"><span>💬 Tom & Empatia</span><span class="text-purple-400 font-mono">${behScore}/100</span></div>
+                                <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-purple-500 h-2 rounded-full" style="width: ${behScore}%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-white">Resumo Executivo do Atendimento</h4>
+                        <p class="text-slate-200 leading-relaxed">${audit.executive_summary}</p>
+                    </div>
                 </div>
 
-                <!-- Risk Analysis & Root Cause -->
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
-                    <h4 class="font-bold text-white">Análise de Risco & Causa Raiz</h4>
-                    <p class="text-slate-300"><strong>Causa Raiz:</strong> <span class="text-amber-300">${audit.root_cause || 'Não identificado'}</span></p>
-                    <p class="text-slate-300"><strong>Responsável:</strong> <span class="text-indigo-300">${audit.problem_owner || 'Não identificado'}</span></p>
-                    <div class="pt-1"><strong class="text-slate-400 block mb-1">Riscos Identificados:</strong> ${risksBadges}</div>
+                <!-- TAB 2: Causa Raiz & Evidências -->
+                <div id="dtab-evidences" class="space-y-4 hidden">
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-microscope text-amber-400"></i> Taxonomia de Intenção & Causa Raiz
+                        </h4>
+                        <p class="text-slate-300"><strong>Causa Raiz:</strong> <span class="text-amber-300 font-bold">${audit.root_cause || 'Não identificado'}</span></p>
+                        <p class="text-slate-300"><strong>Responsável:</strong> <span class="text-indigo-300 font-bold">${audit.problem_owner || 'Não identificado'}</span></p>
+                        <div class="pt-1"><strong class="text-slate-400 block mb-1">Riscos Identificados:</strong> ${risksBadges}</div>
+                    </div>
+
+                    <div class="bg-slate-900 p-4 rounded-xl border border-indigo-500/30 space-y-2">
+                        <h4 class="font-bold text-indigo-400 flex items-center gap-2">
+                            <i class="fa-solid fa-quote-left text-indigo-400"></i> Citação Literal da Evidência Extraída
+                        </h4>
+                        <p class="italic text-slate-300 bg-black p-3 rounded-lg border border-slate-800 font-mono">"${audit.evidence_quote || 'Evidência confirmada na gravação.'}"</p>
+                    </div>
                 </div>
 
-                <!-- Executive Summary -->
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
-                    <h4 class="font-bold text-white">Resumo Executivo do Atendimento</h4>
-                    <p class="text-slate-200 leading-relaxed">${audit.executive_summary}</p>
+                <!-- TAB 3: Transcrição Completa 1-Click -->
+                <div id="dtab-transcript" class="space-y-4 hidden">
+                    <div class="bg-black p-4 rounded-xl border border-indigo-500/30 font-mono space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
+                        ${formattedLines}
+                    </div>
                 </div>
 
-                <!-- Literal Evidence Quote -->
-                <div class="bg-slate-900 p-4 rounded-xl border border-indigo-500/30 space-y-2">
-                    <h4 class="font-bold text-indigo-400">Citação Literal da Evidência Extraída</h4>
-                    <p class="italic text-slate-300 bg-black p-3 rounded-lg border border-slate-800 font-mono">"${audit.evidence_quote || 'Evidência confirmada na gravação.'}"</p>
+                <!-- TAB 4: LGPD Presidio Guard -->
+                <div id="dtab-lgpd" class="space-y-4 hidden">
+                    <div class="bg-slate-900 p-4 rounded-xl border border-emerald-500/30 space-y-3">
+                        <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                            <i class="fa-solid fa-shield-halved text-base"></i>
+                            <span>Proteção LGPD Presidio Guard</span>
+                        </div>
+                        <p class="text-slate-300 text-xs">Todas as PIIs bancárias foram higienizadas e mascaradas antes do envio para a nuvem de IA.</p>
+                        <div class="grid grid-cols-2 gap-2 pt-2 text-xs">
+                            <div class="bg-black p-2.5 rounded-lg border border-slate-800 text-slate-300">
+                                <span class="text-slate-500 block text-[10px]">CPF / Documentos</span>
+                                <span class="text-emerald-400 font-bold">[CPF_MASCARADO]</span>
+                            </div>
+                            <div class="bg-black p-2.5 rounded-lg border border-slate-800 text-slate-300">
+                                <span class="text-slate-500 block text-[10px]">Telefone / Contatos</span>
+                                <span class="text-emerald-400 font-bold">[TELEFONE_MASCARADO]</span>
+                            </div>
+                            <div class="bg-black p-2.5 rounded-lg border border-slate-800 text-slate-300">
+                                <span class="text-slate-500 block text-[10px]">Cartão de Crédito</span>
+                                <span class="text-emerald-400 font-bold">[CARTAO_MASCARADO]</span>
+                            </div>
+                            <div class="bg-black p-2.5 rounded-lg border border-slate-800 text-slate-300">
+                                <span class="text-slate-500 block text-[10px]">Dados de Conta</span>
+                                <span class="text-emerald-400 font-bold">[DADO_BANCARIO_MASCARADO]</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
 
             document.getElementById('rightDrawerOverlay').classList.remove('hidden');
             document.getElementById('rightDrawer').classList.remove('translate-x-full');
+        }
+
+        function switchDrawerTab(tabId) {
+            const tabs = ['scorecard', 'evidences', 'transcript', 'lgpd'];
+            tabs.forEach(t => {
+                const contentEl = document.getElementById('dtab-' + t);
+                const btnEl = document.getElementById('dtab-btn-' + t);
+                if (contentEl && btnEl) {
+                    if ('tab-' + t === tabId) {
+                        contentEl.classList.remove('hidden');
+                        btnEl.className = "px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white transition";
+                    } else {
+                        contentEl.classList.add('hidden');
+                        btnEl.className = "px-3 py-1.5 rounded-lg font-bold bg-slate-900 text-slate-400 hover:text-white transition";
+                    }
+                }
+            });
         }
 
         function toggleDrawerTranscript() {
