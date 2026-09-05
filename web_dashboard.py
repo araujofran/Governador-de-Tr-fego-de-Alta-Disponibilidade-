@@ -240,16 +240,21 @@ HTML_PAGE = """<!DOCTYPE html>
 
                     <div class="relative flex py-2 items-center">
                         <div class="flex-grow border-t border-slate-800"></div>
-                        <span class="flex-shrink mx-4 text-xs text-slate-500">ou</span>
+                        <span class="flex-shrink mx-4 text-xs text-slate-500">ou acesse com 1 clique</span>
                         <div class="flex-grow border-t border-slate-800"></div>
                     </div>
 
-                    <button onclick="quickFill('admin', 'admin1')" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium rounded-xl transition flex items-center justify-center space-x-2">
-                        <span>Entrar com Google (Demonstração Admin)</span>
-                    </button>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="quickFill('admin', 'admin1')" class="py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold rounded-xl transition flex items-center justify-center space-x-1.5">
+                            <span>🔑 Entrar como Admin</span>
+                        </button>
+                        <button type="button" onclick="quickFill('usuario', 'usuario1')" class="py-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold rounded-xl transition flex items-center justify-center space-x-1.5">
+                            <span>👤 Entrar como Usuário</span>
+                        </button>
+                    </div>
 
                     <div class="text-center text-xs text-slate-500 pt-2">
-                        Ainda não tem uma conta? <a href="#" class="text-amber-400 hover:underline font-semibold">Fale com o administrador</a>
+                        Ainda não tem uma conta? <a href="#" onclick="alert('Entre em contato com o Administrador para solicitar credenciais de acesso.')" class="text-amber-400 hover:underline font-semibold">Fale com o administrador</a>
                     </div>
                 </div>
             </div>
@@ -515,16 +520,20 @@ HTML_PAGE = """<!DOCTYPE html>
         let currentUser = null;
         let cachedAudits = [];
 
-        function quickFill(user, pass) {
+        async function quickFill(user, pass) {
             document.getElementById('loginUsername').value = user;
             document.getElementById('loginPassword').value = pass;
-            document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            await doLogin(user, pass);
         }
 
         async function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('loginUsername').value;
-            const p = document.getElementById('loginPassword').value;
+            if (e) e.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim();
+            const p = document.getElementById('loginPassword').value.trim();
+            await doLogin(u, p);
+        }
+
+        async function doLogin(u, p) {
             const err = document.getElementById('loginError');
             err.classList.add('hidden');
 
