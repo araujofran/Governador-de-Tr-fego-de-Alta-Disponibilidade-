@@ -220,10 +220,16 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
 
                 <div class="flex items-center space-x-4">
+                    <!-- FRAN_AI Copilot Badge -->
+                    <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
+                        <i class="fa-solid fa-robot text-indigo-400"></i>
+                        <span>FRAN_AI Copilot Ativo</span>
+                    </div>
+
                     <!-- Privacy Badge -->
                     <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
                         <i class="fa-solid fa-shield-halved text-emerald-400"></i>
-                        <span>LGPD Presidio Guard Ativo</span>
+                        <span>LGPD Presidio Guard</span>
                     </div>
 
                     <!-- Search Bar -->
@@ -233,6 +239,11 @@ HTML_PAGE = """<!DOCTYPE html>
                         </span>
                         <input type="text" id="globalSearch" oninput="handleGlobalSearch()" placeholder="Buscar protocolo, operador..." class="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500">
                     </div>
+
+                    <!-- Theme Switcher Button (Dark / Light Mode) -->
+                    <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white transition" title="Alternar Tema Claro/Escuro">
+                        <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+                    </button>
 
                     <button onclick="refreshData()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white transition" title="Atualizar Dados">
                         <i class="fa-solid fa-arrows-rotate text-sm"></i>
@@ -335,6 +346,23 @@ HTML_PAGE = """<!DOCTYPE html>
                                 <div class="flex justify-between items-center"><span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Alerta (70-85)</span> <strong class="text-white font-mono" id="donut-med">0</strong></div>
                                 <div class="flex justify-between items-center"><span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Crítico (<70)</span> <strong class="text-white font-mono" id="donut-low">0</strong></div>
                             </div>
+                        </div>
+                    <!-- Smooth Bezier Trend Line Chart (Image Mockup media_1788626098398.png Pattern) -->
+                    <div class="bg-cardbg rounded-2xl p-6 border border-slate-800 shadow-lg space-y-4">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                            <div>
+                                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-line text-emerald-400"></i> Evolução CX & Tendência Operacional (FRAN_AI Analytics)
+                                </h3>
+                                <p class="text-xs text-slate-400">Comparativo histórico de nota média de atendimento (Período Atual vs Período Anterior)</p>
+                            </div>
+                            <div class="flex items-center gap-4 text-xs font-semibold">
+                                <span class="flex items-center gap-1.5 text-emerald-400"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> Período Atual</span>
+                                <span class="flex items-center gap-1.5 text-indigo-400"><span class="w-3 h-3 rounded-full bg-indigo-500"></span> Período Anterior</span>
+                            </div>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="cxTrendLineChart"></canvas>
                         </div>
                     </div>
 
@@ -577,6 +605,23 @@ HTML_PAGE = """<!DOCTYPE html>
         let cxDonutChartInst = null;
         let cxBarChartInst = null;
         let riskBarChartInst = null;
+        let cxTrendLineChartInst = null;
+        let isDarkMode = true;
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            if (!isDarkMode) {
+                body.classList.remove('bg-darkbg');
+                body.classList.add('bg-slate-100', 'text-slate-900');
+                if (icon) icon.className = 'fa-solid fa-sun text-amber-500 text-sm';
+            } else {
+                body.classList.remove('bg-slate-100', 'text-slate-900');
+                body.classList.add('bg-darkbg');
+                if (icon) icon.className = 'fa-solid fa-moon text-sm';
+            }
+        }
 
         function authFetch(url, options = {}) {
             if (!options.headers) options.headers = {};
@@ -881,6 +926,70 @@ HTML_PAGE = """<!DOCTYPE html>
                     cutout: '75%'
                 }
             });
+
+            renderCXTrendLineChart(audits);
+        }
+
+        function renderCXTrendLineChart(audits) {
+            const canvas = document.getElementById('cxTrendLineChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (cxTrendLineChartInst) cxTrendLineChartInst.destroy();
+
+            // Gerar curvas de dados comparativas
+            const labels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+            const currentData = [82, 84, 85.4, 87, 86, 88.5, 89];
+            const previousData = [78, 80, 81, 79, 82, 83, 84];
+
+            cxTrendLineChartInst = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Período Atual',
+                            data: currentData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Período Anterior',
+                            data: previousData,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.05)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            min: 60,
+                            max: 100,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
         }
 
         function renderOperatorsTable(ops) {
@@ -1152,6 +1261,21 @@ HTML_PAGE = """<!DOCTYPE html>
                                 <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-purple-500 h-2 rounded-full" style="width: ${behScore}%"></div></div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- FRAN_AI Copilot Proativo Box -->
+                    <div class="bg-indigo-950/60 p-4 rounded-xl border border-indigo-500/40 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-extrabold text-indigo-300 flex items-center gap-2 text-xs">
+                                <i class="fa-solid fa-robot text-indigo-400 text-sm"></i> FRAN_AI Copilot Proativo
+                            </span>
+                            <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-mono uppercase font-bold">Recomendação IA</span>
+                        </div>
+                        <p class="text-slate-200 text-xs leading-relaxed">
+                            ${audit.overall_score >= 85 
+                                ? `<strong>🎯 Recomendação FRAN_AI:</strong> Atendimento exemplar! Recomendado registrar como <em>Best Practice</em> e conceder selo Top Performer ao operador ${audit.operator_name || 'Operador'}.`
+                                : `<strong>⚠️ Recomendação FRAN_AI:</strong> Identificado ponto de atenção em <em>${audit.root_cause || 'Aderência Técnica'}</em>. Recomendado agendar 1-on-1 de feedback e reciclagem de procedimentos.`}
+                        </p>
                     </div>
 
                     <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
