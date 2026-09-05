@@ -245,6 +245,42 @@ class AuditDatabase:
                 FOREIGN KEY (audit_id) REFERENCES audits(id) ON DELETE SET NULL
             )
             """)
+            # 10. Users & Permissions (RBAC)
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                username TEXT PRIMARY KEY,
+                password TEXT NOT NULL,
+                role TEXT NOT NULL,
+                name TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """)
+
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS user_permissions (
+                username TEXT PRIMARY KEY,
+                can_access_infra INTEGER DEFAULT 1,
+                can_access_executive INTEGER DEFAULT 1,
+                FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+            )
+            """)
+
+            # Seed default users if empty
+            cursor.execute("SELECT COUNT(*) FROM users")
+            if cursor.fetchone()[0] == 0:
+                cursor.execute("""
+                INSERT INTO users (username, password, role, name)
+                VALUES 
+                    ('admin', 'admin1', 'admin', 'Administrador do Sistema'),
+                    ('usuario', 'usuario1', 'usuario', 'Auditor de Qualidade')
+                """)
+                cursor.execute("""
+                INSERT INTO user_permissions (username, can_access_infra, can_access_executive)
+                VALUES 
+                    ('admin', 1, 1),
+                    ('usuario', 0, 1)
+                """)
+
             conn.commit()
             logger.info(f"[Database] SQLite database initialized at {self.db_path}")
         finally:
@@ -551,5 +587,71 @@ class AuditDatabase:
                 "high_risks": high_risks,
                 "total_tokens": total_tokens
             }
+        finally:
+            conn.close()
+
+    def authenticate_user(self, username_or_email: str, password_input: str) -> Optional[Dict[str, Any]]:
+        """Autentica usuário e retorna dados com permissões."""
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+            u_clean = username_or_email.strip().lower().replace("@engineer.ai", "")
+            cursor.execute("""
+                SELECT u.username, u.role, u.name, p.can_access_infra, p.can_access_executive
+                FROM users u
+                LEFT JOIN user_permissions p ON u.username = p.username
+                WHERE (u.username = ? OR u.username = ?) AND u.password = ?
+            """, (username_or_email.strip().lower(), u_clean, password_input.strip()))
+            row = cursor.fetchone()
+            if row:
+                res = dict(row)
+                res["can_access_infra"] = bool(res.get("can_access_infra", 1 if res["role"] == "admin" else 0))
+                res["can_access_executive"] = bool(res.get("can_access_executive", 1))
+                return res
+            return None
+        finally:
+            conn.close()
+
+    def get_all_users_permissions(self) -> List[Dict[str, Any]]:
+        """Retorna lista de todos os usuários com suas permissões para o Admin."""
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT u.username, u.role, u.name, 
+                       COALESCE(p.can_access_infra, 1) as can_access_infra,
+                       COALESCE(p.can_access_executive, 1) as can_access_executive
+                FROM users u
+                LEFT JOIN user_permissions p ON u.username = p.username
+                ORDER BY u.role ASC, u.username ASC
+            """)
+            rows = cursor.fetchall()
+            results = []
+            for r in rows:
+                item = dict(r)
+                item["can_access_infra"] = bool(item["can_access_infra"])
+                item["can_access_executive"] = bool(item["can_access_executive"])
+                results.append(item)
+            return results
+        finally:
+            conn.close()
+
+    def update_user_permissions(self, username: str, can_access_infra: bool, can_access_executive: bool) -> bool:
+        """Atualiza permissões de visualização para um usuário."""
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO user_permissions (username, can_access_infra, can_access_executive)
+                VALUES (?, ?, ?)
+                ON CONFLICT(username) DO UPDATE SET
+                    can_access_infra = excluded.can_access_infra,
+                    can_access_executive = excluded.can_access_executive
+            """, (username, 1 if can_access_infra else 0, 1 if can_access_executive else 0))
+            conn.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Could not update permissions for {username}: {e}")
+            return False
         finally:
             conn.close()

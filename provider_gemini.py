@@ -66,7 +66,7 @@ class GeminiProvider(BaseLLMProvider):
             mock_audit = AuditAnalysisResult(
                 numero_protocolo=f"PROT-{random.randint(100000, 999999)}",
                 nome_operador="Atendente Gemini",
-                nome_cliente="Cliente Banco Daycoval",
+                nome_cliente="Cliente Banco Engineer AI",
                 resumo_executivo=f"Auditoria realizada via Gemini 3.6 Flash. Transcrição de {len(text.split())} palavras analisada com sucesso.",
                 classificacao_atendimento="Consulta Financeira",
                 score_final=score,

@@ -69,7 +69,7 @@ class OpenRouterMiniMaxProvider(BaseLLMProvider):
             mock_audit = AuditAnalysisResult(
                 numero_protocolo=f"PROT-{random.randint(100000, 999999)}",
                 nome_operador="Atendente MiniMax",
-                nome_cliente="Cliente Banco Daycoval",
+                nome_cliente="Cliente Banco Engineer AI",
                 resumo_executivo=f"Auditoria realizada via MiniMax M3 Free. Transcrição de {len(text.split())} palavras analisada com sucesso.",
                 classificacao_atendimento="Reclamação / Suporte",
                 score_final=score,

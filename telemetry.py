@@ -140,7 +140,7 @@ class TelemetryTracker:
         s = self.stats
         elapsed = time.time() - s.start_time
         return Panel(
-            f"[bold cyan]LLM Traffic Controller & Daycoval Auditor[/bold cyan] | "
+            f"[bold cyan]LLM Traffic Controller & Banco Engineer AI Auditor[/bold cyan] | "
             f"Tempo: [bold green]{elapsed:.1f}s[/bold green] | "
             f"Status: [bold yellow]{s.current_status}[/bold yellow]",
             style="bold white on blue"

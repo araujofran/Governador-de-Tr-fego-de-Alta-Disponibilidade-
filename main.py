@@ -110,7 +110,7 @@ async def run_system(
         raw_tasks = [{"id": f"test_{i+1:03d}.txt", "filename": f"test_{i+1:03d}.txt", "text": "Cliente telefona para solicitar saldo e o operador realiza a autenticação."} for i in range(10)]
 
     console.print(Panel.fit(
-        f"[bold blue]LLM API Traffic Controller & Daycoval Auditor[/bold blue]\n"
+        f"[bold blue]LLM API Traffic Controller & Banco Engineer AI Auditor[/bold blue]\n"
         f"Modo: [yellow]{provider_type.upper()}[/yellow] | Transcrições Reais: [cyan]{len(raw_tasks)}[/cyan]\n"
         f"Chaves -> Groq: [green]{'OK' if loaded_keys.groq_api_key else 'Mock'}[/green] | "
         f"Gemini: [green]{'OK' if loaded_keys.gemini_api_key else 'Mock'}[/green] | "
@@ -217,7 +217,7 @@ async def run_system(
     s = telemetry.stats
     total_tokens = s.total_input_tokens + s.total_output_tokens
     
-    summary_table = Table(title="Relatorio Final de Execucao (Auditoria Daycoval & LLM Traffic Controller)", expand=True)
+    summary_table = Table(title="Relatorio Final de Execucao (Auditoria Banco Engineer AI & LLM Traffic Controller)", expand=True)
     summary_table.add_column("Metrica", style="cyan")
     summary_table.add_column("Resultado", style="bold green")
 

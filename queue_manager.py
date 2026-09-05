@@ -94,7 +94,7 @@ class BatchQueueProcessor:
                     return f.read()
             except Exception as e:
                 logger.warning(f"Could not read contract prompt: {e}")
-        return "Você é um Especialista Sênior em Auditoria de Atendimento do Banco Daycoval. Analise a transcrição com base estrita no texto."
+        return "Você é um Especialista Sênior em Auditoria de Atendimento do Banco Engineer AI. Analise a transcrição com base estrita no texto."
 
     def add_transcriptions(self, raw_tasks: List[Dict[str, str]]):
         """

@@ -67,7 +67,7 @@ class GroqProvider(BaseLLMProvider):
             mock_audit = AuditAnalysisResult(
                 numero_protocolo=f"PROT-{random.randint(100000, 999999)}",
                 nome_operador="Atendente Groq",
-                nome_cliente="Cliente Banco Daycoval",
+                nome_cliente="Cliente Banco Engineer AI",
                 resumo_executivo=f"Auditoria realizada via Groq ({model}). Transcrição de {len(text.split())} palavras analisada.",
                 classificacao_atendimento="Solicitação de Serviço / Saldo",
                 score_final=score,
