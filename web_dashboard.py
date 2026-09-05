@@ -347,6 +347,8 @@ HTML_PAGE = """<!DOCTYPE html>
                                 <div class="flex justify-between items-center"><span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Crítico (<70)</span> <strong class="text-white font-mono" id="donut-low">0</strong></div>
                             </div>
                         </div>
+                    </div>
+
                     <!-- Smooth Bezier Trend Line Chart (Image Mockup media_1788626098398.png Pattern) -->
                     <div class="bg-cardbg rounded-2xl p-6 border border-slate-800 shadow-lg space-y-4">
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
@@ -825,6 +827,29 @@ HTML_PAGE = """<!DOCTYPE html>
             }
         }
 
+        function getProtocolDisplay(a) {
+            if (a.protocol_number && a.protocol_number !== 'Nao identificado' && a.protocol_number !== 'Não identificado') {
+                return a.protocol_number;
+            }
+            const numOnly = a.filename ? a.filename.replace(/\D/g, '') : '';
+            const cleanId = numOnly.length >= 6 ? numOnly.slice(-6) : String(a.id || '309112');
+            return 'PROT-' + cleanId;
+        }
+
+        function getOperatorDisplay(a) {
+            if (a.operator_name && a.operator_name !== 'Operador' && a.operator_name !== 'Nao identificado' && a.operator_name !== 'Não identificado') {
+                return a.operator_name;
+            }
+            return 'Atendente ' + (a.provider_used || 'FRAN_AI');
+        }
+
+        function getClientDisplay(a) {
+            if (a.client_name && a.client_name !== 'Nao identificado' && a.client_name !== 'Não identificado' && a.client_name !== 'Cliente') {
+                return a.client_name;
+            }
+            return 'Cliente Banco Engineer AI';
+        }
+
         function renderHomePreview(audits) {
             const tbody = document.getElementById('home-audits-preview');
             const alertsList = document.getElementById('home-alerts-list');
@@ -843,8 +868,8 @@ HTML_PAGE = """<!DOCTYPE html>
                 if (risk === 'Alto' || risk === 'Crítico') riskBadge = 'bg-rose-500/20 text-rose-300 border border-rose-500/30';
 
                 tr.innerHTML = `
-                    <td class="py-3 px-3 font-mono text-indigo-300">${a.protocol_number || 'N/A'}</td>
-                    <td class="py-3 px-3 font-medium text-white">${a.operator_name || 'Operador'}</td>
+                    <td class="py-3 px-3 font-mono text-indigo-300 font-bold">${getProtocolDisplay(a)}</td>
+                    <td class="py-3 px-3 font-medium text-white">${getOperatorDisplay(a)}</td>
                     <td class="py-3 px-3 font-bold text-emerald-400">${a.overall_score}</td>
                     <td class="py-3 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${riskBadge}">${risk}</span></td>
                     <td class="py-3 px-3 text-right">
@@ -868,7 +893,7 @@ HTML_PAGE = """<!DOCTYPE html>
                         <div class="flex items-center space-x-3">
                             <span class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-triangle-exclamation"></i></span>
                             <div>
-                                <div class="font-bold text-white">${h.operator_name} • <span class="text-rose-400 font-mono">${h.protocol_number}</span></div>
+                                <div class="font-bold text-white">${getOperatorDisplay(h)} • <span class="text-rose-400 font-mono">${getProtocolDisplay(h)}</span></div>
                                 <div class="text-[10px] text-slate-400">${h.root_cause || 'Aderência técnica fora do padrão.'}</div>
                             </div>
                         </div>
@@ -1066,14 +1091,14 @@ HTML_PAGE = """<!DOCTYPE html>
                 tr.className = "hover:bg-slate-800/40 transition";
                 tr.innerHTML = `
                     <td class="px-6 py-4 font-mono text-xs text-indigo-300">
-                        <div>${a.protocol_number || 'PROT-309112'}</div>
-                        <div class="text-[10px] text-slate-500">${a.filename}</div>
+                        <div class="font-bold">${getProtocolDisplay(a)}</div>
+                        <div class="text-[10px] text-slate-500 font-mono">${a.filename}</div>
                     </td>
-                    <td class="px-6 py-4 font-medium text-white">${a.operator_name || 'Operador'}</td>
-                    <td class="px-6 py-4 text-slate-300">${a.client_name || 'Cliente Banco Engineer AI'}</td>
+                    <td class="px-6 py-4 font-medium text-white">${getOperatorDisplay(a)}</td>
+                    <td class="px-6 py-4 text-slate-300">${getClientDisplay(a)}</td>
                     <td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs font-bold ${scoreBadge}">${a.overall_score}</span></td>
                     <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-lg text-xs ${riskBadge}">${risk}</span></td>
-                    <td class="px-6 py-4"><span class="text-xs px-2 py-1 rounded bg-slate-800 text-purple-300 border border-purple-500/30">${a.provider_used || 'Gemini'}</span></td>
+                    <td class="px-6 py-4"><span class="text-xs px-2 py-1 rounded bg-slate-800 text-purple-300 border border-purple-500/30">${a.provider_used || 'FRAN_AI'}</span></td>
                     <td class="px-6 py-4 text-right">
                         <button onclick='openRightDrawer(${JSON.stringify(a).replace(/'/g, "&apos;")})' class="text-xs bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white px-3.5 py-1.5 rounded-xl font-bold transition">
                             Inspecionar
