@@ -4,6 +4,7 @@ import logging
 from typing import Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, Request, Response, Depends, Cookie
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from database import AuditDatabase
 from finops_engine import FinOpsEngine
@@ -11,6 +12,15 @@ from finops_engine import FinOpsEngine
 logger = logging.getLogger("TrafficController.WebDashboard")
 
 app = FastAPI(title="AuditAI - Banco Engineer AI SaaS Dashboard & LLM Traffic Controller")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 db = AuditDatabase()
 finops_engine = FinOpsEngine()
 
@@ -25,30 +35,30 @@ HTML_PAGE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuditAI — Inteligência que Protege o Seu Negócio | Banco Engineer AI</title>
+    <title>Pathway LMS • AuditAI | Banco Engineer AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        cursive: ['"Caveat"', 'cursive']
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
                     },
                     colors: {
-                        gold: {
-                            400: '#fbbf24',
-                            500: '#f59e0b',
-                            600: '#d97706',
+                        brand: {
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca'
                         },
-                        darkbg: '#0b0f17',
-                        cardbg: '#131926',
-                        borderbg: '#1e293b'
+                        darkbg: '#090d16',
+                        cardbg: '#111827',
+                        sidebg: '#0d1322'
                     }
                 }
             }
@@ -56,466 +66,512 @@ HTML_PAGE = """<!DOCTYPE html>
     </script>
     <style>
         .gold-gradient-btn {
-            background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
         }
         .gold-gradient-btn:hover {
-            background: linear-gradient(135deg, #facc15 0%, #d97706 100%);
+            background: linear-gradient(135deg, #818cf8 0%, #4338ca 100%);
         }
-        .glass-panel {
-            background: rgba(19, 25, 38, 0.85);
-            backdrop-filter: blur(16px);
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0d1322;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
         }
     </style>
 </head>
-<body class="bg-darkbg text-slate-100 min-h-screen font-sans antialiased selection:bg-amber-500 selection:text-black">
+<body class="bg-darkbg text-slate-100 font-sans antialiased selection:bg-brand-500 selection:text-white min-h-screen">
 
-    <!-- LOGIN SCREEN CONTAINER (Renders if not logged in) -->
-    <div id="loginView" class="min-h-screen flex items-center justify-center p-4 md:p-8 bg-gradient-to-br from-darkbg via-[#0c121e] to-darkbg">
-        <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            <!-- Left Column: Hero & Branding Showcase -->
-            <div class="lg:col-span-7 space-y-8 p-4 lg:p-8">
-                <!-- Top Header -->
-                <div class="flex items-center space-x-3">
-                    <div class="flex items-center space-x-1.5">
-                        <div class="w-2 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full"></div>
-                        <div class="w-2 h-9 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full"></div>
-                        <div class="w-2 h-5 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full"></div>
-                        <div class="w-2 h-7 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full"></div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                            <span>AuditAI</span>
-                        </div>
-                        <div class="text-[10px] font-semibold tracking-widest text-slate-400 uppercase">Inteligência que Protege o Seu Negócio</div>
-                    </div>
-                    <div class="ml-auto flex items-center space-x-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/60">
-                        <span class="text-slate-400">Versão 1.0.0</span>
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span class="text-emerald-400 font-semibold">Sistema online</span>
-                    </div>
+    <!-- LOGIN CONTAINER -->
+    <div id="loginView" class="min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/40 via-darkbg to-darkbg">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mb-4 shadow-xl shadow-indigo-600/10">
+                    <i class="fa-solid fa-graduation-cap text-3xl"></i>
                 </div>
-
-                <!-- Main Headline -->
-                <div class="space-y-4">
-                    <h1 class="text-4xl md:text-5xl font-extrabold text-white leading-tight">
-                        Da conversa ao <br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-600">compliance.</span>
-                    </h1>
-                    <p class="text-slate-400 text-base max-w-lg leading-relaxed">
-                        Transforme atendimentos em insights, reduza riscos e fortaleça a qualidade com o poder da IA no <strong class="text-slate-200">Banco Engineer AI</strong>.
-                    </p>
-                </div>
-
-                <!-- Feature Badges -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="flex items-start space-x-3 p-3.5 rounded-xl bg-cardbg/60 border border-slate-800">
-                        <div class="p-2.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        </div>
-                        <div>
-                            <div class="text-sm font-bold text-white">Auditoria automatizada</div>
-                            <div class="text-xs text-slate-400">Analise 100% dos atendimentos</div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start space-x-3 p-3.5 rounded-xl bg-cardbg/60 border border-slate-800">
-                        <div class="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                        </div>
-                        <div>
-                            <div class="text-sm font-bold text-white">Insights reais</div>
-                            <div class="text-xs text-slate-400">Qualidade, riscos e oportunidades</div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start space-x-3 p-3.5 rounded-xl bg-cardbg/60 border border-slate-800">
-                        <div class="p-2.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        </div>
-                        <div>
-                            <div class="text-sm font-bold text-white">Mais eficiência</div>
-                            <div class="text-xs text-slate-400">Com menos esforço e mais resultado</div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start space-x-3 p-3.5 rounded-xl bg-cardbg/60 border border-slate-800">
-                        <div class="p-2.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        </div>
-                        <div>
-                            <div class="text-sm font-bold text-white">Seus dados, seguros</div>
-                            <div class="text-xs text-slate-400">Privacidade e conformidade em primeiro lugar</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Floating Interactive Sample & Quote -->
-                <div class="relative bg-gradient-to-r from-cardbg via-slate-900 to-cardbg border border-slate-800 rounded-2xl p-5 shadow-2xl">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-amber-400"></span> Atendimento analisado ✓
-                        </span>
-                        <span class="text-[10px] text-slate-400">Banco Engineer AI</span>
-                    </div>
-                    <div class="grid grid-cols-4 gap-2 text-center text-xs">
-                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700">
-                            <div class="text-[10px] text-slate-400">Qualidade</div>
-                            <div class="text-base font-extrabold text-emerald-400">92</div>
-                        </div>
-                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700">
-                            <div class="text-[10px] text-slate-400">Risco</div>
-                            <div class="text-base font-extrabold text-blue-400">baixo</div>
-                        </div>
-                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700">
-                            <div class="text-[10px] text-slate-400">Compliance</div>
-                            <div class="text-base font-extrabold text-amber-400">OK</div>
-                        </div>
-                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700">
-                            <div class="text-[10px] text-slate-400">Cliente</div>
-                            <div class="text-base font-extrabold text-purple-300">satisfeito</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-t border-slate-800 text-xs italic text-slate-400 flex items-center justify-between">
-                        <span>"Qualidade não é um ato. É um hábito, e agora, é escalável."</span>
-                        <span class="font-cursive text-amber-300 text-lg not-italic">Conversas melhores, negócios maiores</span>
-                    </div>
-                </div>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight">Pathway LMS</h1>
+                <p class="text-xs text-indigo-400 font-semibold mt-1">AuditAI • Banco Engineer AI Quality & Compliance</p>
             </div>
 
-            <!-- Right Column: Login Card -->
-            <div class="lg:col-span-5">
-                <div class="glass-panel border border-slate-700/60 rounded-3xl p-8 shadow-2xl space-y-6">
-                    
-                    <div class="text-center space-y-2">
-                        <div class="inline-flex items-center space-x-1.5 mb-2">
-                            <div class="w-2 h-6 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full"></div>
-                            <div class="w-2 h-9 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full"></div>
-                            <div class="w-2 h-5 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full"></div>
-                        </div>
-                        <h2 class="text-2xl font-extrabold text-white">Bem-vindo de volta!</h2>
-                        <p class="text-xs text-slate-400">Faça login para acessar sua plataforma.</p>
+            <div class="bg-cardbg border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-white">Acesse o Portal</h3>
+                    <p class="text-xs text-slate-400 mt-1">Insira suas credenciais para visualizar métricas e relatórios.</p>
+                </div>
+
+                <form id="loginForm" onsubmit="handleLogin(event); return false;" action="javascript:void(0);" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Usuário ou E-mail</label>
+                        <input type="text" id="loginUsername" required placeholder="admin ou usuario" class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-indigo-500">
                     </div>
 
-                    <form id="loginForm" onsubmit="handleLogin(event); return false;" action="javascript:void(0);" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Seu e-mail ou usuário</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path></svg>
-                                </span>
-                                <input type="text" id="loginUsername" required placeholder="admin ou usuario" class="w-full pl-10 pr-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition placeholder:text-slate-600">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Sua senha</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                </span>
-                                <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full pl-10 pr-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition placeholder:text-slate-600">
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between text-xs text-slate-400">
-                            <label class="flex items-center space-x-2 cursor-pointer">
-                                <input type="checkbox" checked class="rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-amber-400">
-                                <span>Lembrar de mim</span>
-                            </label>
-                            <a href="javascript:void(0)" onclick="alert('Credenciais padrão:\nADMIN -> Login: admin | Senha: admin1\nUSUÁRIO -> Login: usuario | Senha: usuario1')" class="text-amber-400 hover:underline">Esqueceu sua senha?</a>
-                        </div>
-
-                        <div id="loginError" class="text-xs text-rose-400 font-semibold hidden bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20 text-center"></div>
-
-                        <button type="button" onclick="handleLogin(event)" class="w-full py-3.5 font-bold text-slate-950 rounded-xl gold-gradient-btn transition shadow-lg flex items-center justify-center space-x-2 text-sm tracking-wide">
-                            <span>Entrar</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </button>
-                    </form>
-
-                    <div class="relative flex py-2 items-center">
-                        <div class="flex-grow border-t border-slate-800"></div>
-                        <span class="flex-shrink mx-4 text-xs text-slate-500">ou acesse com 1 clique</span>
-                        <div class="flex-grow border-t border-slate-800"></div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Senha</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-indigo-500">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <button type="button" onclick="quickFill('admin', 'admin1')" class="py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold rounded-xl transition flex items-center justify-center space-x-1.5">
-                            <span>🔑 Entrar como Admin</span>
-                        </button>
-                        <button type="button" onclick="quickFill('usuario', 'usuario1')" class="py-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold rounded-xl transition flex items-center justify-center space-x-1.5">
-                            <span>👤 Entrar como Usuário</span>
-                        </button>
-                    </div>
+                    <div id="loginError" class="text-xs text-rose-400 font-semibold hidden bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20 text-center"></div>
 
-                    <div class="text-center text-xs text-slate-500 pt-2">
-                        Ainda não tem uma conta? <a href="#" onclick="alert('Entre em contato com o Administrador para solicitar credenciais de acesso.')" class="text-amber-400 hover:underline font-semibold">Fale com o administrador</a>
-                    </div>
+                    <button type="button" onclick="handleLogin(event)" class="w-full py-3.5 font-bold text-white rounded-xl gold-gradient-btn transition shadow-lg flex items-center justify-center space-x-2 text-sm tracking-wide">
+                        <span>Entrar na Plataforma</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="flex-shrink mx-4 text-xs text-slate-500">Acesso Rápido 1-Clique</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" onclick="quickFill('admin', 'admin1')" class="py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-user-shield"></i> Admin Demo
+                    </button>
+                    <button type="button" onclick="quickFill('usuario', 'usuario1')" class="py-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-user"></i> Usuário Demo
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP CONTAINER (Rendered when Logged In) -->
-    <div id="appView" class="hidden min-h-screen flex flex-col">
-        
-        <!-- Top App Switcher & User Header -->
-        <header class="bg-cardbg border-b border-slate-800 px-6 py-3 flex flex-wrap justify-between items-center sticky top-0 z-50 shadow-lg">
-            <div class="flex items-center space-x-6">
-                <!-- App Logo -->
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center font-bold text-slate-950 text-sm shadow">
-                        AI
+    <!-- MAIN LMS SAAS LAYOUT (Rendered when Logged In) -->
+    <div id="appView" class="hidden min-h-screen flex bg-darkbg">
+
+        <!-- LEFT SIDEBAR MENU (Pathway LMS Behance Style - Images 2, 3, 4, 5) -->
+        <aside class="w-64 bg-sidebg border-r border-slate-800 flex flex-col justify-between shrink-0 hidden md:flex sticky top-0 h-screen z-40">
+            <div class="p-6 space-y-8">
+                <!-- Brand Header -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-600/30">
+                        <i class="fa-solid fa-shapes"></i>
                     </div>
                     <div>
-                        <div class="text-base font-extrabold text-white">AuditAI</div>
-                        <div class="text-[10px] text-amber-400 font-semibold">Banco Engineer AI</div>
+                        <div class="font-extrabold text-white text-base tracking-tight">Pathway LMS</div>
+                        <div class="text-[10px] font-semibold text-indigo-400">Banco Engineer AI</div>
                     </div>
                 </div>
 
-                <!-- Navigation Tabs / Interface Switcher -->
-                <nav class="flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 text-xs font-semibold" id="navTabs">
-                    <button id="tabExecutive" onclick="switchTab('executive')" class="px-4 py-2 rounded-lg text-white bg-amber-500/20 text-amber-300 border border-amber-500/30 transition flex items-center space-x-2 hidden">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-                        <span>📊 Dashboard Executivo SaaS</span>
+                <!-- Navigation Section -->
+                <nav class="space-y-1 text-xs font-medium" id="sideNav">
+                    <button id="navDashboard" onclick="switchView('dashboard')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-white bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 transition">
+                        <i class="fa-solid fa-house w-4 text-center"></i>
+                        <span>Dashboard</span>
                     </button>
-                    <button id="tabInfra" onclick="switchTab('infra')" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2 hidden">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        <span>⚡ Infraestrutura & FinOps (Dev/Admin)</span>
+
+                    <button id="navOperators" onclick="switchView('operators')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                        <i class="fa-solid fa-id-badge w-4 text-center"></i>
+                        <span>Operadores</span>
                     </button>
-                    <button id="tabAdmin" onclick="switchTab('admin_perm')" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2 hidden">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        <span>⚙️ Gestão de Acessos</span>
+
+                    <button id="navAudits" onclick="switchView('audits')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                        <i class="fa-solid fa-file-contract w-4 text-center"></i>
+                        <span>Auditorias & Chamadas</span>
+                    </button>
+
+                    <button id="navAssessments" onclick="switchView('assessments')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                        <i class="fa-solid fa-chart-pie w-4 text-center"></i>
+                        <span>Avaliações & Analytics</span>
+                    </button>
+
+                    <button id="navInfra" onclick="switchView('infra')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition hidden">
+                        <i class="fa-solid fa-bolt w-4 text-center"></i>
+                        <span>Infraestrutura & FinOps</span>
+                    </button>
+
+                    <button id="navAdminPerm" onclick="switchView('admin_perm')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition hidden">
+                        <i class="fa-solid fa-user-gear w-4 text-center"></i>
+                        <span>Gestão de Acessos</span>
                     </button>
                 </nav>
             </div>
 
-            <!-- Right Profile & Logout -->
-            <div class="flex items-center space-x-4 text-xs">
-                <div class="flex items-center space-x-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
-                    <span id="userRoleBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 uppercase">ADMIN</span>
-                    <span id="userName" class="text-slate-200 font-medium">Administrador</span>
-                </div>
-                <button onclick="handleLogout()" class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl font-semibold transition flex items-center space-x-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    <span>Sair</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- VIEW 1: EXECUTIVE SAAS DASHBOARD (LMS Behance Inspired) -->
-        <main id="viewExecutive" class="p-6 max-w-7xl mx-auto space-y-6 flex-grow w-full">
-            
-            <!-- Hero Banner -->
-            <div class="bg-gradient-to-r from-cardbg via-slate-900 to-cardbg border border-slate-800 rounded-3xl p-6 shadow-xl relative overflow-hidden">
-                <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-bold border border-amber-500/20 mb-2">
-                            <span>Banco Engineer AI • Quality & Compliance Center</span>
+            <!-- Bottom Profile & Logout -->
+            <div class="p-4 border-t border-slate-800 bg-slate-900/40">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <div class="w-9 h-9 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0">
+                            <i class="fa-solid fa-user-astronaut"></i>
                         </div>
-                        <h2 class="text-2xl font-extrabold text-white">Painel Executivo de Auditoria de Atendimentos</h2>
-                        <p class="text-xs text-slate-400 mt-1">Análise automatizada de conformidade contratual, experiência do cliente e gestão de riscos por IA.</p>
+                        <div class="truncate text-xs">
+                            <div id="userName" class="font-bold text-white truncate">Administrador</div>
+                            <div id="userRoleBadge" class="text-[10px] text-indigo-400 uppercase font-semibold">ADMIN</div>
+                        </div>
                     </div>
-                    <button onclick="refreshData()" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold rounded-xl transition shadow-lg flex items-center space-x-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                        <span>Atualizar Relatório</span>
+                    <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg transition" title="Sair">
+                        <i class="fa-solid fa-right-from-bracket text-sm"></i>
                     </button>
                 </div>
             </div>
+        </aside>
 
-            <!-- Executive KPI Scorecards Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-lg">
-                    <div class="flex items-center justify-between text-slate-400 mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider">Média de Qualidade CX</span>
-                        <span class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <!-- RIGHT CONTENT WRAPPER -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar">
+
+            <!-- Top Header Navbar -->
+            <header class="bg-cardbg/80 backdrop-blur border-b border-slate-800 px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+                <div>
+                    <h2 id="pageTitle" class="text-xl font-extrabold text-white">Dashboard Overview</h2>
+                    <p id="pageSubTitle" class="text-xs text-slate-400 mt-0.5">Acompanhe métricas de qualidade, conformidade e gestão de riscos em tempo real.</p>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Search Bar -->
+                    <div class="relative hidden sm:block w-64">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
                         </span>
+                        <input type="text" id="globalSearch" oninput="handleGlobalSearch()" placeholder="Buscar protocolo, operador..." class="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500">
                     </div>
-                    <div class="text-3xl font-extrabold text-white" id="exec-score">0.0</div>
-                    <div class="text-xs text-emerald-400 mt-2 flex items-center space-x-1">
-                        <span>Conformidade contratual global</span>
+
+                    <button onclick="refreshData()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white transition" title="Atualizar Dados">
+                        <i class="fa-solid fa-arrows-rotate text-sm"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTENT BODY VIEWS -->
+            <main class="p-6 max-w-7xl mx-auto space-y-6 flex-grow w-full">
+
+                <!-- VIEW 1: HOME DASHBOARD (Behance LMS Image 2 & 3) -->
+                <div id="viewDashboard" class="space-y-6">
+                    
+                    <!-- 4 Key Metrics Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-lg flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Auditorias</p>
+                                <h3 id="exec-audits" class="text-2xl font-extrabold text-white mt-1">309</h3>
+                                <p class="text-[10px] text-emerald-400 mt-1"><i class="fa-solid fa-arrow-trend-up"></i> 100% Salvos em SQLite</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-lg flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Média Qualidade CX</p>
+                                <h3 id="exec-score" class="text-2xl font-extrabold text-emerald-400 mt-1">85.4</h3>
+                                <p class="text-[10px] text-slate-400 mt-1">Scorecard de 0 a 100</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-award"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-lg flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tokens Processados</p>
+                                <h3 id="infra-tokens" class="text-2xl font-extrabold text-purple-400 mt-1">4.2M</h3>
+                                <p class="text-[10px] text-purple-300 mt-1">Compressores Python ativos</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-lg flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Casos de Risco Crítico</p>
+                                <h3 id="exec-risks" class="text-2xl font-extrabold text-rose-400 mt-1">12</h3>
+                                <p class="text-[10px] text-rose-300 mt-1">Necessitam Ação Imediata</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Two-Column Grid (Behance Image 2 & 3: Top Performance + Engagement Ring) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Top Performance Table (2 cols) -->
+                        <div class="lg:col-span-2 bg-cardbg rounded-2xl p-6 border border-slate-800 shadow-lg space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-fire text-amber-400"></i> Destaques de Atendimentos Auditados
+                                </h3>
+                                <button onclick="switchView('audits')" class="text-xs text-indigo-400 hover:underline font-semibold">Ver Todos <i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr class="border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
+                                            <th class="pb-3 px-3">Protocolo</th>
+                                            <th class="pb-3 px-3">Operador</th>
+                                            <th class="pb-3 px-3">Score CX</th>
+                                            <th class="pb-3 px-3">Risco</th>
+                                            <th class="pb-3 px-3 text-right">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="home-audits-preview" class="divide-y divide-slate-800/60">
+                                        <!-- Loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Learner / CX Engagement Ring Chart (1 col - Image 2 Donut) -->
+                        <div class="bg-cardbg rounded-2xl p-6 border border-slate-800 shadow-lg flex flex-col justify-between space-y-4">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-chart-donut text-indigo-400"></i> Distribuição de Qualidade CX
+                            </h3>
+                            <div class="relative flex items-center justify-center h-48">
+                                <canvas id="cxDonutChart"></canvas>
+                            </div>
+                            <div class="space-y-2 text-xs border-t border-slate-800 pt-4">
+                                <div class="flex justify-between items-center"><span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Conforme (>85)</span> <strong class="text-white font-mono" id="donut-high">0</strong></div>
+                                <div class="flex justify-between items-center"><span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Alerta (70-85)</span> <strong class="text-white font-mono" id="donut-med">0</strong></div>
+                                <div class="flex justify-between items-center"><span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Crítico (<70)</span> <strong class="text-white font-mono" id="donut-low">0</strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Alerts & Recent Activity -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-cardbg rounded-2xl p-6 border border-slate-800 shadow-lg space-y-4">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-bell text-rose-400"></i> Alertas Importantes de Conformidade
+                            </h3>
+                            <div id="home-alerts-list" class="space-y-3">
+                                <!-- Loaded dynamically -->
+                            </div>
+                        </div>
+
+                        <div class="bg-cardbg rounded-2xl p-6 border border-slate-800 shadow-lg space-y-4">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> Atividades Recentes da Operação
+                            </h3>
+                            <div id="home-activity-list" class="space-y-3">
+                                <!-- Loaded dynamically -->
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-lg">
-                    <div class="flex items-center justify-between text-slate-400 mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider">Atendimentos Auditados</span>
-                        <span class="p-2 rounded-lg bg-blue-500/10 text-blue-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                        </span>
-                    </div>
-                    <div class="text-3xl font-extrabold text-white" id="exec-audits">0</div>
-                    <div class="text-xs text-slate-400 mt-2">100% gravados em SQLite</div>
-                </div>
-
-                <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-lg">
-                    <div class="flex items-center justify-between text-slate-400 mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider">Alertas de Risco</span>
-                        <span class="p-2 rounded-lg bg-rose-500/10 text-rose-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </span>
-                    </div>
-                    <div class="text-3xl font-extrabold text-rose-400" id="exec-risks">0</div>
-                    <div class="text-xs text-rose-400 mt-2">Grau Alto / Crítico</div>
-                </div>
-
-                <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-lg">
-                    <div class="flex items-center justify-between text-slate-400 mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider">Resolutividade</span>
-                        <span class="p-2 rounded-lg bg-amber-500/10 text-amber-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </span>
-                    </div>
-                    <div class="text-3xl font-extrabold text-amber-400" id="exec-resolutivity">94.2%</div>
-                    <div class="text-xs text-slate-400 mt-2">Solução no 1º contato</div>
-                </div>
-            </div>
-
-            <!-- Main Executive Grid: Call Inspector Table -->
-            <div class="bg-cardbg rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
-                <div class="p-5 border-b border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <h3 class="text-base font-bold text-white">Relatório de Auditorias — Banco Engineer AI</h3>
-                        <p class="text-xs text-slate-400">Selecione qualquer atendimento para inspecionar scorecards, evidências por linha e causa raiz.</p>
+                <!-- VIEW 2: OPERATORES (Behance LMS Image 4 - Instructors List) -->
+                <div id="viewOperators" class="space-y-6 hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-cardbg p-6 rounded-2xl border border-slate-800">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Desempenho da Equipe de Operadores</h3>
+                            <p class="text-xs text-slate-400 mt-1">Ranking de atendentes baseado na nota média CX e resolutividade de chamadas.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="text" id="opSearch" oninput="filterOperatorsTable()" placeholder="Buscar operador..." class="px-3.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500">
+                        </div>
                     </div>
 
-                    <!-- Search & Filter Controls -->
-                    <div class="flex flex-wrap items-center gap-3">
-                        <input type="text" id="execSearch" onkeyup="filterExecTable()" placeholder="Buscar operador ou protocolo..." class="px-3.5 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-400 w-60">
-                        
-                        <select id="execFilterRisk" onchange="filterExecTable()" class="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none">
-                            <option value="ALL">Todos os Riscos</option>
-                            <option value="Baixo">Risco Baixo</option>
-                            <option value="Médio">Risco Médio</option>
-                            <option value="Alto">Risco Alto</option>
-                            <option value="Crítico">Risco Crítico</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-slate-300">
-                        <thead class="bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400">
-                            <tr>
-                                <th class="px-6 py-3.5">Protocolo / Arquivo</th>
-                                <th class="px-6 py-3.5">Operador</th>
-                                <th class="px-6 py-3.5">Cliente</th>
-                                <th class="px-6 py-3.5">Score Final</th>
-                                <th class="px-6 py-3.5">Nível de Risco</th>
-                                <th class="px-6 py-3.5">Provedor IA</th>
-                                <th class="px-6 py-3.5 text-right">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="exec-table-body" class="divide-y divide-slate-800/60 font-sans">
-                            <tr><td colspan="7" class="text-center py-8 text-slate-500">Carregando auditorias...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-
-        <!-- VIEW 2: INFRASTRUCTURE & FINOPS DASHBOARD (Dev/Admin View) -->
-        <main id="viewInfra" class="p-6 max-w-7xl mx-auto space-y-6 flex-grow w-full hidden">
-            <!-- Developer Telemetry Content -->
-            <div class="bg-cardbg rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-xl font-bold text-white">Governador Multi-Provedor & FinOps LLM</h2>
-                        <p class="text-xs text-slate-400">Métricas de infraestrutura, controle de taxa de tokens e planejamento de capacidade.</p>
-                    </div>
-                    <span class="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-bold rounded-full">Painel Desenvolvedor</span>
-                </div>
-
-                <!-- FinOps Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2">
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                        <div class="text-xs text-slate-400">Custo Real API (Free)</div>
-                        <div class="text-2xl font-extrabold text-emerald-400" id="infra-actual">R$ 0,00</div>
-                    </div>
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                        <div class="text-xs text-slate-400">Custo Comercial Eq.</div>
-                        <div class="text-2xl font-extrabold text-amber-400" id="infra-equivalent">R$ 0,00</div>
-                    </div>
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                        <div class="text-xs text-slate-400">Economia Estimada</div>
-                        <div class="text-2xl font-extrabold text-emerald-400" id="infra-savings">R$ 0,00</div>
-                    </div>
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                        <div class="text-xs text-slate-400">Tokens Totais</div>
-                        <div class="text-2xl font-extrabold text-purple-300" id="infra-tokens">0</div>
-                    </div>
-                </div>
-
-                <!-- Projections Table -->
-                <div class="pt-4">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Tabela de Capacity Planning Mensal</h4>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-slate-300">
-                            <thead class="bg-slate-800 text-slate-400">
-                                <tr>
-                                    <th class="px-4 py-2">Escala Mensal</th>
-                                    <th class="px-4 py-2">Tokens Entrada</th>
-                                    <th class="px-4 py-2">Tokens Saída</th>
-                                    <th class="px-4 py-2">Tokens Totais</th>
-                                    <th class="px-4 py-2">Custo Eq. USD</th>
-                                    <th class="px-4 py-2">Custo Eq. BRL</th>
+                    <div class="bg-cardbg rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-900/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
+                                    <th class="py-4 px-6">Operador</th>
+                                    <th class="py-4 px-6">Atendimentos Auditados</th>
+                                    <th class="py-4 px-6">Score Médio CX</th>
+                                    <th class="py-4 px-6">Casos de Risco</th>
+                                    <th class="py-4 px-6">Status de Desempenho</th>
+                                    <th class="py-4 px-6 text-right">Ação</th>
                                 </tr>
                             </thead>
-                            <tbody id="infra-proj-body" class="divide-y divide-slate-800 font-mono">
-                                <tr><td colspan="6" class="text-center py-4 text-slate-500">Carregando projeções...</td></tr>
+                            <tbody id="operatorsTableBody" class="divide-y divide-slate-800/60">
+                                <!-- Loaded dynamically -->
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
-        </main>
 
-        <!-- VIEW 3: ADMIN PERMISSIONS MANAGEMENT -->
-        <main id="viewAdminPerm" class="p-6 max-w-4xl mx-auto space-y-6 flex-grow w-full hidden">
-            <div class="bg-cardbg rounded-2xl p-6 border border-slate-800 shadow-xl space-y-6">
-                <div>
-                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                        <span>⚙️ Painel de Gestão de Acessos e Permissões</span>
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-1">Como administrador, defina exatamente quais dashboards cada perfil/usuário tem permissão para visualizar.</p>
+                <!-- VIEW 3: AUDITORIAS & CHAMADAS (Behance LMS Image 2 & 4) -->
+                <div id="viewAudits" class="space-y-6 hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-cardbg p-6 rounded-2xl border border-slate-800">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Todas as Auditorias de Atendimento</h3>
+                            <p class="text-xs text-slate-400 mt-1">Consulte a íntegra dos 309 atendimentos com análise de causas raízes e transcrições.</p>
+                        </div>
+
+                        <div class="flex items-center gap-3 w-full md:w-auto">
+                            <input type="text" id="execSearch" oninput="filterExecTable()" placeholder="Buscar protocolo, operador, arquivo..." class="px-3.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 w-full md:w-64">
+                            <select id="execFilterRisk" onchange="filterExecTable()" class="px-3.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                                <option value="ALL">Todos os Riscos</option>
+                                <option value="Baixo">Baixo Risco</option>
+                                <option value="Médio">Médio Risco</option>
+                                <option value="Alto">Alto Risco</option>
+                                <option value="Crítico">Crítico</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-cardbg rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-900/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
+                                    <th class="py-4 px-6">Protocolo / Arquivo</th>
+                                    <th class="py-4 px-6">Operador</th>
+                                    <th class="py-4 px-6">Cliente</th>
+                                    <th class="py-4 px-6">Score Geral</th>
+                                    <th class="py-4 px-6">Nível Risco</th>
+                                    <th class="py-4 px-6">Provedor LLM</th>
+                                    <th class="py-4 px-6 text-right">Inspeção</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exec-table-body" class="divide-y divide-slate-800/60">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-slate-300">
-                        <thead class="bg-slate-900 text-xs uppercase tracking-wider text-slate-400">
-                            <tr>
-                                <th class="px-6 py-3.5">Usuário / Perfil</th>
-                                <th class="px-6 py-3.5">Função (Role)</th>
-                                <th class="px-6 py-3.5 text-center">Dashboard Infra & FinOps</th>
-                                <th class="px-6 py-3.5 text-center">Dashboard Executivo SaaS</th>
-                                <th class="px-6 py-3.5 text-right">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="permTableBody" class="divide-y divide-slate-800">
-                            <tr><td colspan="5" class="text-center py-4 text-slate-500">Carregando usuários...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-    </div>
+                <!-- VIEW 4: AVALIAÇÕES & ANALYTICS (Behance LMS Image 5 - Assessments) -->
+                <div id="viewAssessments" class="space-y-6 hidden">
+                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800">
+                        <h3 class="text-lg font-bold text-white">Análise Qualitativa CX & Dimensões Pydantic</h3>
+                        <p class="text-xs text-slate-400 mt-1">Desempenho detalhado por pilar de atendimento e taxa de conformidade.</p>
+                    </div>
 
-    <!-- AUDIT DETAIL INSPECTOR MODAL -->
-    <div id="auditModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-cardbg border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl p-6 lg:p-8 relative space-y-6">
-            <button onclick="closeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-xl bg-slate-900 border border-slate-800">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <div id="modalContent"></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-lg space-y-4">
+                            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-chart-bar text-indigo-400"></i> Média por Dimensão Pydantic (0-100)
+                            </h4>
+                            <div class="h-64">
+                                <canvas id="cxBarChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-lg space-y-4">
+                            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved text-emerald-400"></i> Distribuição Pass vs Fail (Riscos)
+                            </h4>
+                            <div class="h-64">
+                                <canvas id="riskBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 5: INFRAESTRUTURA & FINOPS (Dev/Admin Only) -->
+                <div id="viewInfra" class="space-y-6 hidden">
+                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 space-y-2">
+                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-bold border border-purple-500/20">
+                            <span>Painel FinOps & Economia de LLM</span>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-white">Gestão Financeira & Capacidade Operacional</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-lg">
+                            <div class="text-xs font-bold text-slate-400 uppercase">Custo Real Pago (Groq / Gemini)</div>
+                            <div class="text-2xl font-extrabold text-emerald-400 mt-2" id="infra-actual">R$ 0.00</div>
+                            <p class="text-[10px] text-slate-500 mt-1">Tier gratuito e modelos otimizados</p>
+                        </div>
+                        <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-lg">
+                            <div class="text-xs font-bold text-slate-400 uppercase">Custo Equivalente sem Otimizador</div>
+                            <div class="text-2xl font-extrabold text-amber-400 mt-2" id="infra-equivalent">R$ 0.00</div>
+                            <p class="text-[10px] text-slate-500 mt-1">Estimativa comercial padrão</p>
+                        </div>
+                        <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-lg">
+                            <div class="text-xs font-bold text-slate-400 uppercase">Economia Financeira Gerada</div>
+                            <div class="text-2xl font-extrabold text-indigo-400 mt-2" id="infra-savings">R$ 0.00</div>
+                            <p class="text-[10px] text-indigo-300 mt-1">Arquitetura Python First</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-lg space-y-4">
+                        <h4 class="text-sm font-bold text-white">Projeção de Capacidade & Escalabilidade</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="border-b border-slate-800 text-slate-400 font-semibold uppercase">
+                                        <th class="py-3 px-4">Volume Mensal</th>
+                                        <th class="py-3 px-4">Tokens Entrada</th>
+                                        <th class="py-3 px-4">Tokens Saída</th>
+                                        <th class="py-3 px-4">Total Tokens</th>
+                                        <th class="py-3 px-4">Custo USD</th>
+                                        <th class="py-3 px-4">Custo BRL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="infra-proj-body" class="divide-y divide-slate-800/60"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 6: GESTÃO DE ACESSOS (Admin Only) -->
+                <div id="viewAdminPerm" class="space-y-6 hidden">
+                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800">
+                        <h3 class="text-lg font-bold text-white">Gestão de Permissões & Perfis de Usuário</h3>
+                        <p class="text-xs text-slate-400 mt-1">Controle de visualizações para perfis Administrador e Usuário Padrão.</p>
+                    </div>
+
+                    <div class="bg-cardbg rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="bg-slate-900 border-b border-slate-800 text-slate-400 font-semibold uppercase">
+                                    <th class="py-4 px-6">Usuário</th>
+                                    <th class="py-4 px-6">Perfil</th>
+                                    <th class="py-4 px-6 text-center">Ver Infra / FinOps</th>
+                                    <th class="py-4 px-6 text-center">Ver Dashboard Executivo</th>
+                                    <th class="py-4 px-6 text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="permTableBody" class="divide-y divide-slate-800/60"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
         </div>
     </div>
+
+    <!-- RIGHT SLIDE-OVER DRAWER (Behance LMS Image 4 - Learner Profile / Call Inspector) -->
+    <div id="rightDrawerOverlay" onclick="closeRightDrawer()" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+    <aside id="rightDrawer" class="fixed top-0 right-0 w-full max-w-xl h-full bg-cardbg border-l border-slate-800 z-50 transform translate-x-full transition-transform duration-300 shadow-2xl flex flex-col justify-between overflow-hidden">
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between bg-sidebg">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-lg font-bold">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+                <div>
+                    <h3 id="drawerTitle" class="font-extrabold text-white text-base">Inspeção Detalhada</h3>
+                    <p id="drawerSubTitle" class="text-xs text-slate-400">Relatório de Qualidade Pydantic</p>
+                </div>
+            </div>
+            <button onclick="closeRightDrawer()" class="text-slate-400 hover:text-white p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+        </div>
+
+        <div id="drawerContent" class="p-6 space-y-6 flex-1 overflow-y-auto custom-scrollbar text-xs">
+            <!-- Loaded dynamically -->
+        </div>
+
+        <div class="p-4 border-t border-slate-800 bg-sidebg flex justify-end">
+            <button onclick="closeRightDrawer()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs transition">
+                Fechar Painel
+            </button>
+        </div>
+    </aside>
 
     <script>
         let currentUser = null;
         let cachedAudits = [];
+        let cachedOperators = [];
+        let cxDonutChartInst = null;
+        let cxBarChartInst = null;
+        let riskBarChartInst = null;
+
+        function authFetch(url, options = {}) {
+            if (!options.headers) options.headers = {};
+            const sessionId = localStorage.getItem('auditai_session');
+            if (sessionId) {
+                options.headers['X-Session-ID'] = sessionId;
+            }
+            return fetch(url, options);
+        }
 
         async function quickFill(user, pass) {
             document.getElementById('loginUsername').value = user;
@@ -528,15 +584,6 @@ HTML_PAGE = """<!DOCTYPE html>
             const u = document.getElementById('loginUsername').value.trim();
             const p = document.getElementById('loginPassword').value.trim();
             await doLogin(u, p);
-        }
-
-        function authFetch(url, options = {}) {
-            if (!options.headers) options.headers = {};
-            const sessionId = localStorage.getItem('auditai_session');
-            if (sessionId) {
-                options.headers['X-Session-ID'] = sessionId;
-            }
-            return fetch(url, options);
         }
 
         async function doLogin(u, p) {
@@ -590,18 +637,13 @@ HTML_PAGE = """<!DOCTYPE html>
             document.getElementById('userRoleBadge').innerText = currentUser.role.toUpperCase();
 
             // Tab permissions
-            const btnInfra = document.getElementById('tabInfra');
-            const btnExec = document.getElementById('tabExecutive');
-            const btnAdmin = document.getElementById('tabAdmin');
+            const navInfra = document.getElementById('navInfra');
+            const navAdmin = document.getElementById('navAdminPerm');
 
-            btnInfra.classList.toggle('hidden', !currentUser.can_access_infra);
-            btnExec.classList.toggle('hidden', !currentUser.can_access_executive);
-            btnAdmin.classList.toggle('hidden', currentUser.role !== 'admin');
+            navInfra.classList.toggle('hidden', !currentUser.can_access_infra);
+            navAdmin.classList.toggle('hidden', currentUser.role !== 'admin');
 
-            if (currentUser.can_access_executive) switchTab('executive');
-            else if (currentUser.can_access_infra) switchTab('infra');
-            else if (currentUser.role === 'admin') switchTab('admin_perm');
-
+            switchView('dashboard');
             refreshData();
         }
 
@@ -613,31 +655,62 @@ HTML_PAGE = """<!DOCTYPE html>
             document.getElementById('loginView').classList.remove('hidden');
         }
 
-        function switchTab(tab) {
+        function switchView(viewName) {
             if (!currentUser) return;
-            if (tab === 'infra' && !currentUser.can_access_infra) return;
-            if (tab === 'executive' && !currentUser.can_access_executive) return;
-            if (tab === 'admin_perm' && currentUser.role !== 'admin') return;
+            if (viewName === 'infra' && !currentUser.can_access_infra) return;
+            if (viewName === 'admin_perm' && currentUser.role !== 'admin') return;
 
-            document.getElementById('viewExecutive').classList.toggle('hidden', tab !== 'executive');
-            document.getElementById('viewInfra').classList.toggle('hidden', tab !== 'infra');
-            document.getElementById('viewAdminPerm').classList.toggle('hidden', tab !== 'admin_perm');
+            const views = ['dashboard', 'operators', 'audits', 'assessments', 'infra', 'admin_perm'];
+            views.forEach(v => {
+                const el = document.getElementById('view' + v.charAt(0).toUpperCase() + v.slice(1));
+                if (el) el.classList.toggle('hidden', v !== viewName);
+            });
 
-            const btnExec = document.getElementById('tabExecutive');
-            const btnInfra = document.getElementById('tabInfra');
-            const btnAdmin = document.getElementById('tabAdmin');
+            // Update nav active classes
+            const navs = {
+                'dashboard': 'navDashboard',
+                'operators': 'navOperators',
+                'audits': 'navAudits',
+                'assessments': 'navAssessments',
+                'infra': 'navInfra',
+                'admin_perm': 'navAdminPerm'
+            };
 
-            btnExec.className = tab === 'executive' ? 'px-4 py-2 rounded-lg text-white bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold' : 'px-4 py-2 rounded-lg text-slate-400 hover:text-white';
-            btnInfra.className = tab === 'infra' ? 'px-4 py-2 rounded-lg text-white bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold' : 'px-4 py-2 rounded-lg text-slate-400 hover:text-white';
-            btnAdmin.className = tab === 'admin_perm' ? 'px-4 py-2 rounded-lg text-white bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold' : 'px-4 py-2 rounded-lg text-slate-400 hover:text-white';
+            const titles = {
+                'dashboard': ['Dashboard Overview', 'Acompanhe métricas de qualidade, conformidade e gestão de riscos em tempo real.'],
+                'operators': ['Lista de Operadores', 'Desempenho individual, ranking e notas por atendente.'],
+                'audits': ['Auditorias & Chamadas', 'Consulta completa dos 309 atendimentos auditados.'],
+                'assessments': ['Avaliações & Analytics', 'Análise profunda por dimensão de qualidade CX.'],
+                'infra': ['Infraestrutura & FinOps', 'Custos, consumo de tokens e capacidade da arquitetura.'],
+                'admin_perm': ['Gestão de Acessos', 'Gerenciamento de permissões para Administrador e Usuários.']
+            };
 
-            if (tab === 'admin_perm') loadPermissionsTable();
+            if (titles[viewName]) {
+                document.getElementById('pageTitle').innerText = titles[viewName][0];
+                document.getElementById('pageSubTitle').innerText = titles[viewName][1];
+            }
+
+            Object.keys(navs).forEach(k => {
+                const btn = document.getElementById(navs[k]);
+                if (btn) {
+                    if (k === viewName) {
+                        btn.className = 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-white bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 font-bold transition';
+                    } else {
+                        btn.className = 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 font-medium transition';
+                    }
+                }
+            });
+
+            if (viewName === 'admin_perm') loadPermissionsTable();
+            if (viewName === 'operators') fetchOperators();
+            if (viewName === 'assessments') renderAssessmentsCharts();
         }
 
         async function refreshData() {
             fetchKPIs();
             fetchFinOps();
             fetchAudits();
+            fetchOperators();
         }
 
         async function fetchKPIs() {
@@ -646,7 +719,7 @@ HTML_PAGE = """<!DOCTYPE html>
             document.getElementById('exec-audits').innerText = data.total_audits;
             document.getElementById('exec-score').innerText = data.avg_score;
             document.getElementById('exec-risks').innerText = data.high_risks;
-            document.getElementById('infra-tokens').innerText = data.total_tokens.toLocaleString();
+            document.getElementById('infra-tokens').innerText = (data.total_tokens / 1000000).toFixed(1) + 'M';
         }
 
         async function fetchFinOps() {
@@ -665,12 +738,12 @@ HTML_PAGE = """<!DOCTYPE html>
             Object.values(proj).forEach(p => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="px-4 py-2 font-bold text-white">${p.monthly_calls.toLocaleString()} chamadas/mês</td>
-                    <td class="px-4 py-2">${p.projected_input_tokens.toLocaleString()}</td>
-                    <td class="px-4 py-2">${p.projected_output_tokens.toLocaleString()}</td>
-                    <td class="px-4 py-2 text-purple-300">${p.projected_total_tokens.toLocaleString()}</td>
-                    <td class="px-4 py-2 text-amber-300">US$ ${p.equivalent_cost_usd.toLocaleString()}</td>
-                    <td class="px-4 py-2 text-emerald-400 font-bold">R$ ${p.equivalent_cost_brl.toLocaleString()}</td>
+                    <td class="px-4 py-3 font-bold text-white">${p.monthly_calls.toLocaleString()} chamadas/mês</td>
+                    <td class="px-4 py-3 text-slate-300">${p.projected_input_tokens.toLocaleString()}</td>
+                    <td class="px-4 py-3 text-slate-300">${p.projected_output_tokens.toLocaleString()}</td>
+                    <td class="px-4 py-3 text-purple-300 font-mono">${p.projected_total_tokens.toLocaleString()}</td>
+                    <td class="px-4 py-3 text-amber-300 font-mono">US$ ${p.equivalent_cost_usd.toLocaleString()}</td>
+                    <td class="px-4 py-3 text-emerald-400 font-bold font-mono">R$ ${p.equivalent_cost_brl.toLocaleString()}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -680,6 +753,157 @@ HTML_PAGE = """<!DOCTYPE html>
             const res = await authFetch('/api/audits');
             cachedAudits = await res.json();
             renderExecTable(cachedAudits);
+            renderHomePreview(cachedAudits);
+            renderCXDonutChart(cachedAudits);
+        }
+
+        async function fetchOperators() {
+            const res = await authFetch('/api/operators');
+            if (res.ok) {
+                cachedOperators = await res.json();
+                renderOperatorsTable(cachedOperators);
+            }
+        }
+
+        function renderHomePreview(audits) {
+            const tbody = document.getElementById('home-audits-preview');
+            const alertsList = document.getElementById('home-alerts-list');
+            const activityList = document.getElementById('home-activity-list');
+            
+            tbody.innerHTML = '';
+            alertsList.innerHTML = '';
+            activityList.innerHTML = '';
+
+            const topSample = audits.slice(0, 5);
+            topSample.forEach(a => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+                const risk = a.risk_level || 'Baixo';
+                let riskBadge = 'bg-slate-800 text-slate-300';
+                if (risk === 'Alto' || risk === 'Crítico') riskBadge = 'bg-rose-500/20 text-rose-300 border border-rose-500/30';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-3 font-mono text-indigo-300">${a.protocol_number || 'N/A'}</td>
+                    <td class="py-3 px-3 font-medium text-white">${a.operator_name || 'Operador'}</td>
+                    <td class="py-3 px-3 font-bold text-emerald-400">${a.overall_score}</td>
+                    <td class="py-3 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${riskBadge}">${risk}</span></td>
+                    <td class="py-3 px-3 text-right">
+                        <button onclick='openRightDrawer(${JSON.stringify(a).replace(/'/g, "&apos;")})' class="text-[11px] bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white px-2.5 py-1 rounded-lg font-bold transition">
+                            Inspecionar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // High risk alerts
+            const highRisks = audits.filter(a => a.risk_level === 'Alto' || a.risk_level === 'Crítico').slice(0, 4);
+            if (highRisks.length === 0) {
+                alertsList.innerHTML = '<p class="text-xs text-slate-500 italic">Nenhum alerta crítico pendente.</p>';
+            } else {
+                highRisks.forEach(h => {
+                    const item = document.createElement('div');
+                    item.className = "p-3 rounded-xl bg-slate-900 border border-rose-500/20 flex items-center justify-between text-xs";
+                    item.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                            <div>
+                                <div class="font-bold text-white">${h.operator_name} • <span class="text-rose-400 font-mono">${h.protocol_number}</span></div>
+                                <div class="text-[10px] text-slate-400">${h.root_cause || 'Aderência técnica fora do padrão.'}</div>
+                            </div>
+                        </div>
+                        <button onclick='openRightDrawer(${JSON.stringify(h).replace(/'/g, "&apos;")})' class="text-[10px] bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white px-2.5 py-1 rounded-lg font-bold transition">Ver</button>
+                    `;
+                    alertsList.appendChild(item);
+                });
+            }
+
+            // Recent Activity
+            const recent = audits.slice(0, 4);
+            recent.forEach(r => {
+                const item = document.createElement('div');
+                item.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs";
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-check"></i></span>
+                        <div>
+                            <div class="font-bold text-white">Auditoria Concluída via <span class="text-purple-300">${r.provider_used || 'Gemini'}</span></div>
+                            <div class="text-[10px] text-slate-400">${r.filename} • Score: <strong class="text-emerald-400">${r.overall_score}</strong></div>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-slate-500">Hoje</span>
+                `;
+                activityList.appendChild(item);
+            });
+        }
+
+        function renderCXDonutChart(audits) {
+            const high = audits.filter(a => a.overall_score >= 85).length;
+            const med = audits.filter(a => a.overall_score >= 70 && a.overall_score < 85).length;
+            const low = audits.filter(a => a.overall_score < 70).length;
+
+            document.getElementById('donut-high').innerText = high;
+            document.getElementById('donut-med').innerText = med;
+            document.getElementById('donut-low').innerText = low;
+
+            const ctx = document.getElementById('cxDonutChart').getContext('2d');
+            if (cxDonutChartInst) cxDonutChartInst.destroy();
+
+            cxDonutChartInst = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Conforme (>85)', 'Alerta (70-85)', 'Crítico (<70)'],
+                    datasets: [{
+                        data: [high, med, low],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '75%'
+                }
+            });
+        }
+
+        function renderOperatorsTable(ops) {
+            const tbody = document.getElementById('operatorsTableBody');
+            tbody.innerHTML = '';
+
+            ops.forEach(op => {
+                let badgeClass = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                if (op.performance_status === 'Necessita Revisão') badgeClass = 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+                else if (op.performance_status === 'Regular') badgeClass = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+                tr.innerHTML = `
+                    <td class="py-4 px-6 font-bold text-white flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-indigo-400 flex items-center justify-center font-bold text-xs">
+                            ${op.operator_name.charAt(0)}
+                        </div>
+                        <span>${op.operator_name}</span>
+                    </td>
+                    <td class="py-4 px-6 text-slate-300 font-mono">${op.total_calls} atendimentos</td>
+                    <td class="py-4 px-6 font-bold text-emerald-400 font-mono">${op.avg_score} / 100</td>
+                    <td class="py-4 px-6 text-rose-400 font-mono">${op.high_risks} casos</td>
+                    <td class="py-4 px-6"><span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${badgeClass}">${op.performance_status}</span></td>
+                    <td class="py-4 px-6 text-right">
+                        <button onclick="filterAuditsByOperator('${op.operator_name}')" class="text-xs bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white px-3 py-1.5 rounded-xl font-bold transition">
+                            Ver Chamadas
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterAuditsByOperator(name) {
+            switchView('audits');
+            document.getElementById('execSearch').value = name;
+            filterExecTable();
         }
 
         function filterExecTable() {
@@ -717,7 +941,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/40 transition";
                 tr.innerHTML = `
-                    <td class="px-6 py-4 font-mono text-xs text-amber-300">
+                    <td class="px-6 py-4 font-mono text-xs text-indigo-300">
                         <div>${a.protocol_number || 'PROT-309112'}</div>
                         <div class="text-[10px] text-slate-500">${a.filename}</div>
                     </td>
@@ -727,7 +951,7 @@ HTML_PAGE = """<!DOCTYPE html>
                     <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-lg text-xs ${riskBadge}">${risk}</span></td>
                     <td class="px-6 py-4"><span class="text-xs px-2 py-1 rounded bg-slate-800 text-purple-300 border border-purple-500/30">${a.provider_used || 'Gemini'}</span></td>
                     <td class="px-6 py-4 text-right">
-                        <button onclick='openModal(${JSON.stringify(a).replace(/'/g, "&apos;")})' class="text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3.5 py-1.5 rounded-xl font-bold transition">
+                        <button onclick='openRightDrawer(${JSON.stringify(a).replace(/'/g, "&apos;")})' class="text-xs bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white px-3.5 py-1.5 rounded-xl font-bold transition">
                             Inspecionar
                         </button>
                     </td>
@@ -736,16 +960,74 @@ HTML_PAGE = """<!DOCTYPE html>
             });
         }
 
-        function openModal(audit) {
-            const content = document.getElementById('modalContent');
-            
-            // Extract Pydantic scorecard fields with fallbacks
+        function renderAssessmentsCharts() {
+            if (cachedAudits.length === 0) return;
+
+            let avgCX = 0, avgOp = 0, avgTech = 0, avgBeh = 0;
+            cachedAudits.forEach(a => {
+                avgCX += (a.cx_score || a.overall_score || 80);
+                avgOp += (a.operator_quality_score || a.overall_score || 80);
+                avgTech += (a.technical_score || a.overall_score || 80);
+                avgBeh += (a.behavioral_score || a.overall_score || 80);
+            });
+            const len = cachedAudits.length;
+            avgCX = (avgCX / len).toFixed(1);
+            avgOp = (avgOp / len).toFixed(1);
+            avgTech = (avgTech / len).toFixed(1);
+            avgBeh = (avgBeh / len).toFixed(1);
+
+            const ctx1 = document.getElementById('cxBarChart').getContext('2d');
+            if (cxBarChartInst) cxBarChartInst.destroy();
+            cxBarChartInst = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['CX Cliente', 'Qualidade Operador', 'Aderência Técnica', 'Tom Comportamental'],
+                    datasets: [{
+                        label: 'Score Médio',
+                        data: [avgCX, avgOp, avgTech, avgBeh],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 100 } }
+                }
+            });
+
+            const passCount = cachedAudits.filter(a => a.overall_score >= 75).length;
+            const failCount = cachedAudits.length - passCount;
+
+            const ctx2 = document.getElementById('riskBarChart').getContext('2d');
+            if (riskBarChartInst) riskBarChartInst.destroy();
+            riskBarChartInst = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Resultado Global Auditoria'],
+                    datasets: [
+                        { label: 'Aprovados (>=75)', data: [passCount], backgroundColor: '#10b981', borderRadius: 8 },
+                        { label: 'Com Alerta/Risco (<75)', data: [failCount], backgroundColor: '#ef4444', borderRadius: 8 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { stacked: true }, y: { stacked: true } }
+                }
+            });
+        }
+
+        // OPEN SLIDE-OVER RIGHT DRAWER (Behance Image 4)
+        function openRightDrawer(audit) {
+            document.getElementById('drawerTitle').innerText = audit.filename;
+            document.getElementById('drawerSubTitle').innerText = `Protocolo: ${audit.protocol_number || 'N/A'} • Operador: ${audit.operator_name || 'Operador'}`;
+
             const cxScore = audit.cx_score !== undefined ? audit.cx_score : Math.round(audit.overall_score || 85);
             const opQuality = audit.operator_quality_score !== undefined ? audit.operator_quality_score : Math.round(audit.overall_score || 80);
             const techScore = audit.technical_score !== undefined ? audit.technical_score : Math.round(audit.overall_score || 82);
             const behScore = audit.behavioral_score !== undefined ? audit.behavioral_score : Math.round(audit.overall_score || 88);
-            
-            // Format identified risks
+
             let risksList = [];
             if (Array.isArray(audit.identified_risks)) {
                 risksList = audit.identified_risks;
@@ -757,169 +1039,115 @@ HTML_PAGE = """<!DOCTYPE html>
                 ? risksList.map(r => `<span class="px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20 text-xs">${r}</span>`).join(' ')
                 : `<span class="text-slate-400 text-xs italic">Nenhum risco crítico identificado nesta transcrição.</span>`;
 
-            // Format full transcript line by line with speaker badges
             const fullText = audit.transcricao_original || "Transcrição de áudio em processamento no banco de dados.";
-            const formattedTranscriptLines = fullText.split('\n').map(line => {
+            const formattedLines = fullText.split(String.fromCharCode(10)).map(line => {
                 const trimmed = line.trim();
                 if (!trimmed) return '';
                 if (trimmed.toLowerCase().startsWith('atendente:') || trimmed.toLowerCase().startsWith('operador:')) {
-                    return `<div class="bg-amber-950/40 border-l-4 border-amber-500 p-3 rounded-r-xl text-xs text-amber-200"><strong class="text-amber-400 block mb-1">OPERADOR</strong> ${trimmed.substring(trimmed.indexOf(':')+1)}</div>`;
+                    return `<div class="bg-indigo-950/40 border-l-4 border-indigo-500 p-3 rounded-r-xl text-xs text-indigo-200"><strong class="text-indigo-400 block mb-1">OPERADOR</strong> ${trimmed.substring(trimmed.indexOf(':')+1)}</div>`;
                 } else if (trimmed.toLowerCase().startsWith('cliente:')) {
                     return `<div class="bg-slate-900 border-l-4 border-blue-500 p-3 rounded-r-xl text-xs text-slate-200"><strong class="text-blue-400 block mb-1">CLIENTE</strong> ${trimmed.substring(trimmed.indexOf(':')+1)}</div>`;
                 }
                 return `<div class="bg-slate-950 p-2.5 rounded-lg text-xs text-slate-300 font-mono">${trimmed}</div>`;
             }).filter(Boolean).join('');
 
+            const content = document.getElementById('drawerContent');
             content.innerHTML = `
-                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                    <div>
-                        <div class="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded-md bg-amber-500/10 text-amber-400 text-[10px] font-bold border border-amber-500/20 mb-1">
-                            <span>Relatório de Auditoria Pydantic • Banco Engineer AI</span>
-                        </div>
-                        <h2 class="text-xl font-extrabold text-white">${audit.filename}</h2>
-                        <div class="text-xs text-slate-400 mt-0.5">Protocolo: <strong class="text-slate-200">${audit.protocol_number || 'N/A'}</strong> • Operador: <strong class="text-slate-200">${audit.operator_name || 'Operador'}</strong></div>
+                <!-- Top Metric Cards -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
+                        <span class="text-[10px] text-slate-400 uppercase font-bold">Score Geral</span>
+                        <div class="text-2xl font-extrabold text-emerald-400 mt-1">${audit.overall_score}</div>
                     </div>
-                    <button onclick="toggleTranscriptBox()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold rounded-xl transition shadow-lg flex items-center space-x-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                        <span id="btnTransText">💬 Transcrição Íntegra (1-Click)</span>
-                    </button>
-                </div>
-
-                <!-- Top KPI Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-center">
-                        <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Score Final Geral</div>
-                        <div class="text-3xl font-extrabold text-emerald-400 mt-1">${audit.overall_score}</div>
-                        <div class="text-[10px] text-slate-400">Ponderado (0-100)</div>
-                    </div>
-
-                    <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-center">
-                        <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Nível de Risco</div>
-                        <div class="text-xl font-extrabold ${audit.risk_level === 'Baixo' ? 'text-emerald-400' : 'text-rose-400'} mt-1.5">${audit.risk_level || 'Baixo'}</div>
-                    </div>
-
-                    <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-center">
-                        <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Responsável</div>
-                        <div class="text-xs font-bold text-amber-300 mt-2">${audit.problem_owner || 'Nao identificado'}</div>
-                    </div>
-
-                    <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-center">
-                        <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Resolutividade</div>
-                        <div class="text-xs font-bold text-blue-400 mt-2">${audit.resolutivity || 'Resolvido'}</div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
+                        <span class="text-[10px] text-slate-400 uppercase font-bold">Nível de Risco</span>
+                        <div class="text-xl font-extrabold ${audit.risk_level === 'Baixo' ? 'text-emerald-400' : 'text-rose-400'} mt-1">${audit.risk_level || 'Baixo'}</div>
                     </div>
                 </div>
 
-                <!-- Full Audio Transcript 1-Click Box -->
-                <div id="transcriptContainer" class="hidden space-y-3 bg-black p-5 rounded-2xl border border-amber-500/30">
-                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-2 border-b border-slate-800 pb-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
-                        <span>Transcrição na Íntegra da Ligação de Áudio</span>
+                <!-- 1-Click Audio Transcript Accordion Button -->
+                <button onclick="toggleDrawerTranscript()" class="w-full py-3 bg-indigo-600/20 hover:bg-indigo-600 border border-indigo-500/30 text-indigo-300 hover:text-white rounded-xl font-extrabold transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-comments"></i>
+                    <span id="drawerBtnTransText">💬 Ver Transcrição Íntegra (1-Click)</span>
+                </button>
+
+                <!-- Transcript Box -->
+                <div id="drawerTranscriptBox" class="hidden space-y-2 max-h-80 overflow-y-auto bg-black p-4 rounded-xl border border-indigo-500/30 font-mono custom-scrollbar">
+                    ${formattedLines}
+                </div>
+
+                <!-- CX Scorecard 4D Progress Bars -->
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <h4 class="font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-indigo-400"></i> Scorecard Pydantic 4D
                     </h4>
-                    <div class="space-y-2 max-h-96 overflow-y-auto pr-2 font-mono">
-                        ${formattedTranscriptLines}
-                    </div>
-                </div>
-
-                <!-- Pydantic CXScorecard 4D Breakdown -->
-                <div class="bg-slate-900/90 p-5 rounded-2xl border border-amber-500/20 space-y-4">
-                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-                        <span>Scorecard de Atendimento Pydantic (Dimensões CX)</span>
-                    </h4>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div class="space-y-1.5 bg-slate-950 p-3 rounded-xl border border-slate-800">
-                            <div class="flex justify-between font-semibold">
-                                <span class="text-slate-300">🎯 Experiência do Cliente (CX)</span>
-                                <span class="text-emerald-400 font-mono">${cxScore} / 100</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-2">
-                                <div class="bg-emerald-500 h-2 rounded-full" style="width: ${cxScore}%"></div>
-                            </div>
+                    <div class="space-y-2">
+                        <div>
+                            <div class="flex justify-between font-semibold"><span>🎯 Experiência CX</span><span class="text-emerald-400 font-mono">${cxScore}/100</span></div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-emerald-500 h-2 rounded-full" style="width: ${cxScore}%"></div></div>
                         </div>
-
-                        <div class="space-y-1.5 bg-slate-950 p-3 rounded-xl border border-slate-800">
-                            <div class="flex justify-between font-semibold">
-                                <span class="text-slate-300">👔 Qualidade do Operador</span>
-                                <span class="text-emerald-400 font-mono">${opQuality} / 100</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-2">
-                                <div class="bg-blue-500 h-2 rounded-full" style="width: ${opQuality}%"></div>
-                            </div>
+                        <div>
+                            <div class="flex justify-between font-semibold"><span>👔 Qualidade Operador</span><span class="text-blue-400 font-mono">${opQuality}/100</span></div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-blue-500 h-2 rounded-full" style="width: ${opQuality}%"></div></div>
                         </div>
-
-                        <div class="space-y-1.5 bg-slate-950 p-3 rounded-xl border border-slate-800">
-                            <div class="flex justify-between font-semibold">
-                                <span class="text-slate-300">⚙️ Aderência Técnica & Procedimentos</span>
-                                <span class="text-emerald-400 font-mono">${techScore} / 100</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-2">
-                                <div class="bg-amber-500 h-2 rounded-full" style="width: ${techScore}%"></div>
-                            </div>
+                        <div>
+                            <div class="flex justify-between font-semibold"><span>⚙️ Aderência Técnica</span><span class="text-amber-400 font-mono">${techScore}/100</span></div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-amber-500 h-2 rounded-full" style="width: ${techScore}%"></div></div>
                         </div>
-
-                        <div class="space-y-1.5 bg-slate-950 p-3 rounded-xl border border-slate-800">
-                            <div class="flex justify-between font-semibold">
-                                <span class="text-slate-300">💬 Tom & Empatia Comportamental</span>
-                                <span class="text-emerald-400 font-mono">${behScore} / 100</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-2">
-                                <div class="bg-purple-500 h-2 rounded-full" style="width: ${behScore}%"></div>
-                            </div>
+                        <div>
+                            <div class="flex justify-between font-semibold"><span>💬 Tom & Empatia</span><span class="text-purple-400 font-mono">${behScore}/100</span></div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full mt-1"><div class="bg-purple-500 h-2 rounded-full" style="width: ${behScore}%"></div></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Contractual Risk & Root Cause Analysis -->
-                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Análise de Risco Contratual & Causa Raiz</h4>
-                    <div class="text-xs text-slate-300 space-y-2">
-                        <div><strong>Causa Raiz:</strong> <span class="text-amber-300 font-medium">${audit.root_cause || 'Sem desalinhamento crítico.'}</span></div>
-                        <div class="flex flex-wrap items-center gap-2 pt-1">
-                            <strong class="text-slate-400">Riscos Identificados:</strong>
-                            ${risksBadges}
-                        </div>
-                    </div>
+                <!-- Risk Analysis & Root Cause -->
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <h4 class="font-bold text-white">Análise de Risco & Causa Raiz</h4>
+                    <p class="text-slate-300"><strong>Causa Raiz:</strong> <span class="text-amber-300">${audit.root_cause || 'Não identificado'}</span></p>
+                    <p class="text-slate-300"><strong>Responsável:</strong> <span class="text-indigo-300">${audit.problem_owner || 'Não identificado'}</span></p>
+                    <div class="pt-1"><strong class="text-slate-400 block mb-1">Riscos Identificados:</strong> ${risksBadges}</div>
                 </div>
 
                 <!-- Executive Summary -->
-                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-2">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Resumo Executivo do Atendimento</h4>
-                    <p class="text-sm text-slate-200 leading-relaxed">${audit.executive_summary}</p>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <h4 class="font-bold text-white">Resumo Executivo do Atendimento</h4>
+                    <p class="text-slate-200 leading-relaxed">${audit.executive_summary}</p>
                 </div>
 
                 <!-- Literal Evidence Quote -->
-                <div class="bg-slate-900 p-5 rounded-2xl border border-amber-500/20 space-y-2">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
-                        <span>Citação Literal da Evidência Extraída da Transcrição</span>
-                    </h4>
-                    <p class="text-xs italic text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono">"${audit.evidence_quote || 'Evidência confirmada durante o atendimento.'}"</p>
-                </div>
-
-                <!-- Technical Justification -->
-                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-2">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Justificativa Técnica da Nota</h4>
-                    <p class="text-xs text-slate-300">${audit.score_justification}</p>
+                <div class="bg-slate-900 p-4 rounded-xl border border-indigo-500/30 space-y-2">
+                    <h4 class="font-bold text-indigo-400">Citação Literal da Evidência Extraída</h4>
+                    <p class="italic text-slate-300 bg-black p-3 rounded-lg border border-slate-800 font-mono">"${audit.evidence_quote || 'Evidência confirmada na gravação.'}"</p>
                 </div>
             `;
-            document.getElementById('auditModal').classList.remove('hidden');
+
+            document.getElementById('rightDrawerOverlay').classList.remove('hidden');
+            document.getElementById('rightDrawer').classList.remove('translate-x-full');
         }
 
-        function toggleTranscriptBox() {
-            const container = document.getElementById('transcriptContainer');
-            const btn = document.getElementById('btnTransText');
-            if (container.classList.contains('hidden')) {
-                container.classList.remove('hidden');
+        function toggleDrawerTranscript() {
+            const box = document.getElementById('drawerTranscriptBox');
+            const btn = document.getElementById('drawerBtnTransText');
+            if (box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
                 btn.innerText = '🔼 Ocultar Transcrição';
             } else {
-                container.classList.add('hidden');
-                btn.innerText = '💬 Transcrição Íntegra (1-Click)';
+                box.classList.add('hidden');
+                btn.innerText = '💬 Ver Transcrição Íntegra (1-Click)';
             }
         }
 
-        function closeModal() {
-            document.getElementById('auditModal').classList.add('hidden');
+        function closeRightDrawer() {
+            document.getElementById('rightDrawer').classList.add('translate-x-full');
+            document.getElementById('rightDrawerOverlay').classList.add('hidden');
+        }
+
+        function handleGlobalSearch() {
+            const query = document.getElementById('globalSearch').value.toLowerCase();
+            switchView('audits');
+            document.getElementById('execSearch').value = query;
+            filterExecTable();
         }
 
         async function loadPermissionsTable() {
@@ -933,15 +1161,15 @@ HTML_PAGE = """<!DOCTYPE html>
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="px-6 py-4 font-bold text-white">${u.name} <span class="text-xs text-slate-500">(${u.username})</span></td>
-                    <td class="px-6 py-4"><span class="px-2.5 py-0.5 rounded text-xs font-bold ${u.role === 'admin' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'}">${u.role.toUpperCase()}</span></td>
+                    <td class="px-6 py-4"><span class="px-2.5 py-0.5 rounded text-xs font-bold ${u.role === 'admin' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-blue-500/20 text-blue-400'}">${u.role.toUpperCase()}</span></td>
                     <td class="px-6 py-4 text-center">
-                        <input type="checkbox" id="perm_infra_${u.username}" ${u.can_access_infra ? 'checked' : ''} ${u.username === 'admin' ? 'disabled' : ''} class="w-4 h-4 rounded text-amber-500">
+                        <input type="checkbox" id="perm_infra_${u.username}" ${u.can_access_infra ? 'checked' : ''} ${u.username === 'admin' ? 'disabled' : ''} class="w-4 h-4 rounded text-indigo-500">
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <input type="checkbox" id="perm_exec_${u.username}" ${u.can_access_executive ? 'checked' : ''} class="w-4 h-4 rounded text-amber-500">
+                        <input type="checkbox" id="perm_exec_${u.username}" ${u.can_access_executive ? 'checked' : ''} class="w-4 h-4 rounded text-indigo-500">
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <button onclick="saveUserPermission('${u.username}')" class="text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-xl font-bold transition">
+                        <button onclick="saveUserPermission('${u.username}')" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl font-bold transition">
                             Salvar
                         </button>
                     </td>
@@ -962,7 +1190,6 @@ HTML_PAGE = """<!DOCTYPE html>
             if (res.ok) alert(`Permissões atualizadas com sucesso para o usuário '${username}'!`);
         }
 
-        // Auto check session on load
         checkSession();
     </script>
 </body>
@@ -1025,6 +1252,12 @@ def update_permissions(data: Dict[str, Any], user: Optional[Dict[str, Any]] = De
 @app.get("/api/kpis")
 def get_kpis():
     return db.get_kpi_summary()
+
+@app.get("/api/operators")
+def get_operators(user: Optional[Dict[str, Any]] = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthenticated")
+    return db.get_operators_summary()
 
 @app.get("/api/finops")
 def get_finops(user: Optional[Dict[str, Any]] = Depends(get_current_user)):

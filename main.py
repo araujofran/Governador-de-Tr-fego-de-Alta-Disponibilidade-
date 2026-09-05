@@ -96,10 +96,21 @@ async def run_system(
     max_concurrency: int = 15,
     api_key: str = None,
     start_web: bool = True,
-    web_port: int = 8000
+    web_port: int = 8000,
+    web_only: bool = False
 ):
     if start_web:
         web_port = start_web_dashboard_server(port=web_port)
+
+    if web_only:
+        console.print(Panel.fit(
+            f"[bold green]Modo Web-Only Ativo (Apenas Dashboard Frontend)[/bold green]\n"
+            f"Acesse o Dashboard AuditAI em: [bold underline green]http://127.0.0.1:{web_port}[/bold underline green]\n"
+            f"[dim]Pressione Ctrl+C no terminal para encerrar o servidor.[/dim]",
+            title="[bold blue]AuditAI — Web Dashboard[/bold blue]"
+        ))
+        await asyncio.Event().wait()
+        return
 
     loaded_keys = KeyLoader().load_keys()
 
@@ -233,6 +244,11 @@ async def run_system(
     console.print("\n")
     console.print(summary_table)
 
+    if start_web:
+        console.print(f"\n[bold green]✓ Servidor Web Dashboard mantido ativo em: http://127.0.0.1:{web_port}[/bold green]")
+        console.print("[dim]Pressione Ctrl+C no terminal para encerrar o servidor.[/dim]")
+        await asyncio.Event().wait()
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LLM Traffic Controller & Call Quality Auditor")
     parser.add_argument("--provider", choices=["multi_real", "multi_mock", "groq_real", "groq_mock", "gemini_real", "gemini_mock", "minimax_real", "minimax_mock"], default="multi_real", help="Provedor ou modo de execucao")
@@ -242,6 +258,7 @@ if __name__ == "__main__":
     parser.add_argument("--concurrency", type=int, default=15, help="Concorrencia maxima de workers")
     parser.add_argument("--api-key", type=str, default=None, help="Chave de API customizada (opcional)")
     parser.add_argument("--port", type=int, default=8080, help="Porta do Web Dashboard")
+    parser.add_argument("--web-only", action="store_true", help="Inicia apenas o servidor Web Dashboard sem re-executar auditorias")
 
     args = parser.parse_args()
 
@@ -253,7 +270,8 @@ if __name__ == "__main__":
             tpm_limit=args.tpm,
             max_concurrency=args.concurrency,
             api_key=args.api_key,
-            web_port=args.port
+            web_port=args.port,
+            web_only=args.web_only
         ))
     except KeyboardInterrupt:
-        console.print("\n[bold red]Execucao interrompida pelo usuario.[/bold red]")
+        console.print("\n[bold red]Servidor Web encerrado pelo usuario.[/bold red]")

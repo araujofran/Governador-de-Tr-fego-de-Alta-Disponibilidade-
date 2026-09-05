@@ -648,6 +648,35 @@ class AuditDatabase:
         finally:
             conn.close()
 
+    def get_operators_summary(self) -> List[Dict[str, Any]]:
+        """Retorna estatísticas consolidadas por operador para a aba Operadores do LMS."""
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT 
+                    a.operator_name,
+                    COUNT(*) as total_calls,
+                    ROUND(AVG(a.overall_score), 1) as avg_score,
+                    SUM(CASE WHEN r.risk_level IN ('Alto', 'Crítico') THEN 1 ELSE 0 END) as high_risks
+                FROM audits a
+                LEFT JOIN risk_analyses r ON a.id = r.audit_id
+                GROUP BY a.operator_name
+                ORDER BY avg_score DESC
+            """)
+            rows = cursor.fetchall()
+            results = []
+            for r in rows:
+                item = dict(r)
+                score = item["avg_score"] or 0
+                if score >= 88: item["performance_status"] = "Top Performer"
+                elif score >= 75: item["performance_status"] = "Regular"
+                else: item["performance_status"] = "Necessita Revisão"
+                results.append(item)
+            return results
+        finally:
+            conn.close()
+
     def update_user_permissions(self, username: str, can_access_infra: bool, can_access_executive: bool) -> bool:
         """Atualiza permissões de visualização para um usuário."""
         conn = self.get_connection()
