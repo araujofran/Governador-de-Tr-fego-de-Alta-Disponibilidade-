@@ -265,6 +265,15 @@ class AuditDatabase:
             )
             """)
 
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS user_sessions (
+                session_id TEXT PRIMARY KEY,
+                username TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+            )
+            """)
+
             # Seed default users if empty
             cursor.execute("SELECT COUNT(*) FROM users")
             if cursor.fetchone()[0] == 0:
@@ -658,3 +667,57 @@ class AuditDatabase:
             return False
         finally:
             conn.close()
+
+    def create_session(self, session_id: str, username: str) -> bool:
+        """Salva uma sessão ativa no SQLite para persistência total."""
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("INSERT OR REPLACE INTO user_sessions (session_id, username) VALUES (?, ?)", (session_id, username))
+            conn.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Error saving session {session_id}: {e}")
+            return False
+        finally:
+            conn.close()
+
+    def get_user_by_session(self, session_id: str) -> Optional[Dict[str, Any]]:
+        """Recupera usuário autenticado por ID de sessão mantido no SQLite."""
+        if not session_id:
+            return None
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT u.username, u.role, u.name,
+                       COALESCE(p.can_access_infra, 1) as can_access_infra,
+                       COALESCE(p.can_access_executive, 1) as can_access_executive
+                FROM user_sessions s
+                JOIN users u ON s.username = u.username
+                LEFT JOIN user_permissions p ON u.username = p.username
+                WHERE s.session_id = ?
+            """, (session_id,))
+            row = cursor.fetchone()
+            if row:
+                res = dict(row)
+                res["can_access_infra"] = bool(res.get("can_access_infra", 1 if res["role"] == "admin" else 0))
+                res["can_access_executive"] = bool(res.get("can_access_executive", 1))
+                return res
+            return None
+        finally:
+            conn.close()
+
+    def delete_session(self, session_id: str) -> bool:
+        """Remove sessão ativa ao fazer logout."""
+        if not session_id:
+            return True
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM user_sessions WHERE session_id = ?", (session_id,))
+            conn.commit()
+            return True
+        finally:
+            conn.close()
+

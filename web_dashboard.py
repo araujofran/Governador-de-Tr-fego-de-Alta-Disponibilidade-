@@ -14,14 +14,11 @@ app = FastAPI(title="AuditAI - Banco Engineer AI SaaS Dashboard & LLM Traffic Co
 db = AuditDatabase()
 finops_engine = FinOpsEngine()
 
-# Session store in memory (for simplicity and speed)
-SESSIONS: Dict[str, Dict[str, Any]] = {}
-
 def get_current_user(request: Request) -> Optional[Dict[str, Any]]:
-    session_id = request.cookies.get("auditai_session")
-    if session_id and session_id in SESSIONS:
-        return SESSIONS[session_id]
-    return None
+    session_id = request.cookies.get("auditai_session") or request.headers.get("X-Session-ID")
+    if not session_id:
+        return None
+    return db.get_user_by_session(session_id)
 
 HTML_PAGE = """<!DOCTYPE html>
 <html lang="pt-BR" class="dark">
@@ -533,6 +530,15 @@ HTML_PAGE = """<!DOCTYPE html>
             await doLogin(u, p);
         }
 
+        function authFetch(url, options = {}) {
+            if (!options.headers) options.headers = {};
+            const sessionId = localStorage.getItem('auditai_session');
+            if (sessionId) {
+                options.headers['X-Session-ID'] = sessionId;
+            }
+            return fetch(url, options);
+        }
+
         async function doLogin(u, p) {
             const err = document.getElementById('loginError');
             err.classList.add('hidden');
@@ -549,9 +555,13 @@ HTML_PAGE = """<!DOCTYPE html>
                     err.classList.remove('hidden');
                     return;
                 }
+                if (data.session_id) {
+                    localStorage.setItem('auditai_session', data.session_id);
+                }
                 currentUser = data.user;
                 setupUIForUser();
             } catch(ex) {
+                console.error("Erro ao realizar login:", ex);
                 err.innerText = 'Erro ao realizar login. Tente novamente.';
                 err.classList.remove('hidden');
             }
@@ -559,7 +569,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
         async function checkSession() {
             try {
-                const res = await fetch('/api/me');
+                const res = await authFetch('/api/me');
                 if (res.ok) {
                     const data = await res.json();
                     currentUser = data.user;
@@ -593,7 +603,8 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         async function handleLogout() {
-            await fetch('/api/logout', {method: 'POST'});
+            await authFetch('/api/logout', {method: 'POST'});
+            localStorage.removeItem('auditai_session');
             currentUser = null;
             document.getElementById('appView').classList.add('hidden');
             document.getElementById('loginView').classList.remove('hidden');
@@ -627,7 +638,7 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         async function fetchKPIs() {
-            const res = await fetch('/api/kpis');
+            const res = await authFetch('/api/kpis');
             const data = await res.json();
             document.getElementById('exec-audits').innerText = data.total_audits;
             document.getElementById('exec-score').innerText = data.avg_score;
@@ -636,7 +647,7 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         async function fetchFinOps() {
-            const res = await fetch('/api/finops');
+            const res = await authFetch('/api/finops');
             if (!res.ok) return;
             const data = await res.json();
             const s = data.summary;
@@ -663,7 +674,7 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         async function fetchAudits() {
-            const res = await fetch('/api/audits');
+            const res = await authFetch('/api/audits');
             cachedAudits = await res.json();
             renderExecTable(cachedAudits);
         }
@@ -909,7 +920,7 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         async function loadPermissionsTable() {
-            const res = await fetch('/api/admin/permissions');
+            const res = await authFetch('/api/admin/permissions');
             if (!res.ok) return;
             const users = await res.json();
             const tbody = document.getElementById('permTableBody');
@@ -940,7 +951,7 @@ HTML_PAGE = """<!DOCTYPE html>
             const inf = document.getElementById(`perm_infra_${username}`).checked;
             const exc = document.getElementById(`perm_exec_${username}`).checked;
 
-            const res = await fetch('/api/admin/permissions', {
+            const res = await authFetch('/api/admin/permissions', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({username: username, can_access_infra: inf, can_access_executive: exc})
@@ -961,20 +972,26 @@ def get_root():
 
 @app.post("/api/login")
 def login_api(data: Dict[str, Any], response: Response):
-    username = data.get("username", "")
-    password = data.get("password", "")
+    username = data.get("username", "").strip()
+    password = data.get("password", "").strip()
+    print(f"[LOGIN DEBUG] Tentativa de login: username='{username}'")
     user = db.authenticate_user(username, password)
     if not user:
+        print(f"[LOGIN DEBUG] Falha: usuário ou senha incorretos para '{username}'")
         raise HTTPException(status_code=401, detail="Usuário ou senha incorretos. Tente 'admin'/'admin1' ou 'usuario'/'usuario1'.")
     
     session_id = os.urandom(16).hex()
-    SESSIONS[session_id] = user
-    response.set_cookie(key="auditai_session", value=session_id, httponly=True)
-    return {"status": "ok", "user": user}
+    db.create_session(session_id, user["username"])
+    response.set_cookie(key="auditai_session", value=session_id, httponly=True, path="/", samesite="lax")
+    print(f"[LOGIN DEBUG] SUCESSO: Login realizado para '{username}' (role={user['role']})")
+    return {"status": "ok", "user": user, "session_id": session_id}
 
 @app.post("/api/logout")
-def logout_api(response: Response, user: Optional[Dict[str, Any]] = Depends(get_current_user)):
-    response.delete_cookie("auditai_session")
+def logout_api(request: Request, response: Response):
+    session_id = request.cookies.get("auditai_session") or request.headers.get("X-Session-ID")
+    if session_id:
+        db.delete_session(session_id)
+    response.delete_cookie("auditai_session", path="/")
     return {"status": "ok"}
 
 @app.get("/api/me")
