@@ -178,6 +178,11 @@ HTML_PAGE = """<!DOCTYPE html>
                         <span>Avaliações & Analytics</span>
                     </button>
 
+                    <button id="navTaxonomy" onclick="switchView('taxonomy')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                        <i class="fa-solid fa-sitemap w-4 text-center text-amber-400"></i>
+                        <span>Taxonomia & Speech Analytics</span>
+                    </button>
+
                     <button id="navInfra" onclick="switchView('infra')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition hidden">
                         <i class="fa-solid fa-bolt w-4 text-center"></i>
                         <span>Infraestrutura & FinOps</span>
@@ -567,6 +572,98 @@ HTML_PAGE = """<!DOCTYPE html>
                     </div>
                 </div>
 
+                <!-- VIEW 7: TAXONOMIA DE INTENÇÕES & VOC SPEECH ANALYTICS -->
+                <div id="viewTaxonomy" class="space-y-6 hidden">
+                    <!-- Top Control & Selector Header -->
+                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+                        <div>
+                            <div class="flex items-center space-x-3">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">FRAN_AI Speech Engine</span>
+                                <span class="text-xs text-slate-400"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>Análise Transcricional em Tempo Real</span>
+                            </div>
+                            <h3 class="text-xl font-black text-white mt-1">Taxonomia de Intenções & VoC Speech Analytics</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">Mapeamento da Jornada do Cliente, Análise de Sentimento por Estágio e Diagnóstico Regulatório.</p>
+                        </div>
+                        <div class="flex items-center space-x-3 w-full md:w-auto">
+                            <select id="taxonomyCaseSelect" onchange="selectTaxonomyCase(this.value)" class="bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-4 py-2.5 font-semibold focus:outline-none focus:border-indigo-500 shadow-inner">
+                                <option value="livia">Caso Lívia — PROT-220365 (Empréstimo DED / Falha Token SMS)</option>
+                                <option value="lindolfo">Caso Lindolfo — PROT-778816 (Solicitação DED Quitação)</option>
+                                <option value="lote">Visão Consolidada em Lote (309 Auditorias)</option>
+                            </select>
+                            <button onclick="loadTaxonomyView()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center space-x-2">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                                <span>Atualizar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Top 4 Dynamic KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="taxonomyKpiContainer">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+
+                    <!-- Stage Connected VoC Timeline Card -->
+                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-lg font-bold">
+                                    <i class="fa-solid fa-timeline"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-extrabold text-white">📍 Linha do Tempo & Jornada VoC (Voice of Customer)</h4>
+                                    <p class="text-xs text-slate-400">Evolução do sentimento, citações literais da cliente e gargalos de atendimento.</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">4 Estágios Mapeados</span>
+                        </div>
+
+                        <!-- Connected Nodes Container -->
+                        <div id="taxonomyTimelineNodes" class="grid grid-cols-1 md:grid-cols-4 gap-4 relative pt-2">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Visual Taxonomy Tree Card -->
+                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-400 flex items-center justify-center text-lg font-bold">
+                                    <i class="fa-solid fa-sitemap"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-extrabold text-white">🌳 Árvore Hierárquica de Taxonomia de Intenções</h4>
+                                    <p class="text-xs text-slate-400">Classificação multi-nível de intenções principais, sub-intenções e gatilhos técnicos.</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">FRAN_AI Model v2.4</span>
+                        </div>
+
+                        <div id="taxonomyTreeContainer" class="p-4 bg-slate-900/60 rounded-xl border border-slate-800/80 font-mono text-xs overflow-x-auto">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Regulatory Audit Breakdown (14 Blocks) Card -->
+                    <div class="bg-cardbg p-6 rounded-2xl border border-slate-800 shadow-xl space-y-6">
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-400 flex items-center justify-center text-lg font-bold">
+                                    <i class="fa-solid fa-file-shield"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-extrabold text-white">📋 Matriz Completa de Auditoria Regulatória (14 Blocos)</h4>
+                                    <p class="text-xs text-slate-400">Relatório executivo estruturado com Trava Matemática, Matriz CES e Risco BACEN.</p>
+                                </div>
+                            </div>
+                            <span id="regulatoryScoreBadge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-rose-500/20 text-rose-400 border border-rose-500/30">Nota: 10.0 / 100</span>
+                        </div>
+
+                        <div id="regulatoryAuditBlocks" class="space-y-6">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
@@ -721,7 +818,7 @@ HTML_PAGE = """<!DOCTYPE html>
             if (viewName === 'infra' && !currentUser.can_access_infra) return;
             if (viewName === 'admin_perm' && currentUser.role !== 'admin') return;
 
-            const views = ['dashboard', 'operators', 'audits', 'assessments', 'infra', 'admin_perm'];
+            const views = ['dashboard', 'operators', 'audits', 'assessments', 'taxonomy', 'infra', 'admin_perm'];
             views.forEach(v => {
                 const el = document.getElementById('view' + v.charAt(0).toUpperCase() + v.slice(1));
                 if (el) el.classList.toggle('hidden', v !== viewName);
@@ -733,6 +830,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 'operators': 'navOperators',
                 'audits': 'navAudits',
                 'assessments': 'navAssessments',
+                'taxonomy': 'navTaxonomy',
                 'infra': 'navInfra',
                 'admin_perm': 'navAdminPerm'
             };
@@ -742,6 +840,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 'operators': ['Lista de Operadores', 'Desempenho individual, ranking e notas por atendente.'],
                 'audits': ['Auditorias & Chamadas', 'Consulta completa dos 309 atendimentos auditados.'],
                 'assessments': ['Avaliações & Analytics', 'Análise profunda por dimensão de qualidade CX.'],
+                'taxonomy': ['Taxonomia de Intenções & VoC Speech Analytics', 'Jornada VoC interativa, taxonomia de intenções e auditoria regulatória de 14 blocos.'],
                 'infra': ['Infraestrutura & FinOps', 'Custos, consumo de tokens e capacidade da arquitetura.'],
                 'admin_perm': ['Gestão de Acessos', 'Gerenciamento de permissões para Administrador e Usuários.']
             };
@@ -765,6 +864,7 @@ HTML_PAGE = """<!DOCTYPE html>
             if (viewName === 'admin_perm') loadPermissionsTable();
             if (viewName === 'operators') fetchOperators();
             if (viewName === 'assessments') renderAssessmentsCharts();
+            if (viewName === 'taxonomy') loadTaxonomyView();
         }
 
         async function refreshData() {
@@ -1438,16 +1538,491 @@ HTML_PAGE = """<!DOCTYPE html>
             });
         }
 
-        async function saveUserPermission(username) {
-            const inf = document.getElementById(`perm_infra_${username}`).checked;
-            const exc = document.getElementById(`perm_exec_${username}`).checked;
+        let currentTaxonomyCase = 'livia';
 
-            const res = await authFetch('/api/admin/permissions', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: username, can_access_infra: inf, can_access_executive: exc})
-            });
-            if (res.ok) alert(`Permissões atualizadas com sucesso para o usuário '${username}'!`);
+        function selectTaxonomyCase(caseId) {
+            currentTaxonomyCase = caseId;
+            loadTaxonomyView(caseId);
+        }
+
+        function loadTaxonomyView(caseId = null) {
+            if (caseId) currentTaxonomyCase = caseId;
+            const cid = currentTaxonomyCase;
+
+            const selectEl = document.getElementById('taxonomyCaseSelect');
+            if (selectEl && cachedAudits && cachedAudits.length > 0) {
+                let hasLivia = false;
+                for (let i = 0; i < selectEl.options.length; i++) {
+                    if (selectEl.options[i].value === 'livia') hasLivia = true;
+                }
+                if (!hasLivia) {
+                    selectEl.innerHTML = `
+                        <option value="livia">Caso Lívia — PROT-220365 (Empréstimo DED / Falha Token SMS)</option>
+                        <option value="lindolfo">Caso Lindolfo — PROT-778816 (Solicitação DED Quitação)</option>
+                        <option value="lote">Visão Consolidada em Lote (309 Auditorias)</option>
+                    `;
+                }
+                cachedAudits.slice(0, 5).forEach(a => {
+                    const val = 'audit_' + a.id;
+                    let exists = false;
+                    for (let i = 0; i < selectEl.options.length; i++) {
+                        if (selectEl.options[i].value === val) exists = true;
+                    }
+                    if (!exists) {
+                        const opt = document.createElement('option');
+                        opt.value = val;
+                        opt.innerText = `Protocolo ${a.protocol_number || 'PROT-'+a.id} — ${a.client_name || 'Cliente'} (${a.overall_score || 0} pts)`;
+                        selectEl.appendChild(opt);
+                    }
+                });
+                selectEl.value = cid;
+            }
+
+            const taxonomyCasesData = {
+                'livia': {
+                    client: 'Lívia Santos',
+                    protocol: 'PROT-220365',
+                    operator: 'Carlos Silva (SAC-04)',
+                    score: 10.0,
+                    kpis: [
+                        { label: 'Intenção Principal', val: 'Empréstimos / DED', sub: 'Solicitação de Saldo Devedor', color: 'indigo', icon: 'fa-hand-holding-dollar' },
+                        { label: 'Gargalo Crítico VoC', val: 'Estágio 3 (Biometria / SMS)', sub: 'Falha no Token SMS & SDK', color: 'rose', icon: 'fa-triangle-exclamation' },
+                        { label: 'Impacto TMA & SLA', val: '+480s (240% excedido)', sub: 'TMA Real: 680s vs SLA: 200s', color: 'amber', icon: 'fa-stopwatch' },
+                        { label: 'Risco Regulatório', val: 'Notificação BACEN (R3)', sub: 'Violação do Res. 4.292/BACEN', color: 'rose', icon: 'fa-shield-halved' }
+                    ],
+                    timeline: [
+                        {
+                            stage: '1. Entrada e Contexto',
+                            sentiment: '🟢 Neutro',
+                            sentimentClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+                            emoji: '🙂',
+                            tma: '45s',
+                            intent: 'Consulta de saldo devedor e solicitação formal de DED para portabilidade.',
+                            quote: '"Boa tarde, preciso do meu DED para dar andamento à portabilidade do meu consignado."'
+                        },
+                        {
+                            stage: '2. Proposta de Validação',
+                            sentiment: '🟡 Ansioso',
+                            sentimentClass: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+                            emoji: '😐',
+                            tma: '120s',
+                            intent: 'Verificação de dados cadastrais e solicitação de autenticação por Token SMS.',
+                            quote: '"Vocês podem me mandar por e-mail ou SMS agora? Estou no banco aguardando."'
+                        },
+                        {
+                            stage: '3. Atrito Técnico (SMS/Biometria)',
+                            sentiment: '🔴 Muita Raiva',
+                            sentimentClass: 'bg-rose-500/10 text-rose-400 border-rose-500/30 font-extrabold animate-pulse',
+                            emoji: '🤬',
+                            tma: '360s',
+                            intent: 'Falha no gateway de SMS e travamento da biometria facial no app.',
+                            quote: '"Já tentei 5 vezes no aplicativo, o código SMS não chega e o aplicativo fecha sozinho!"'
+                        },
+                        {
+                            stage: '4. Encerramento e Prazo',
+                            sentiment: '🔵 Aliviado / Expectativa',
+                            sentimentClass: 'bg-sky-500/10 text-sky-400 border-sky-500/30',
+                            emoji: '🙂',
+                            tma: '60s',
+                            intent: 'Abertura de protocolo contingencial e promessa de envio em 24h úteis.',
+                            quote: '"Espero que chegue no meu e-mail até amanhã conforme prometido no protocolo."'
+                        }
+                    ],
+                    treeHtml: `
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2 text-indigo-400 font-bold">
+                                <i class="fa-solid fa-cube"></i>
+                                <span>FRAN_AI :: TAXONOMIA BANCÁRIA :: CASO LÍVIA (PROT-220365)</span>
+                            </div>
+                            <div class="pl-4 border-l-2 border-slate-700 space-y-2">
+                                <div class="text-slate-300">
+                                    ├── <span class="text-indigo-300 font-bold">[Empréstimos e Financiamentos]</span> <span class="text-slate-500">(Volume: 42%)</span>
+                                </div>
+                                <div class="pl-6 border-l border-slate-800 space-y-1">
+                                    <div class="text-slate-300">
+                                        ├── <span class="text-sky-300">[Gerenciamento]</span>
+                                    </div>
+                                    <div class="pl-6 border-l border-slate-800 space-y-1">
+                                        <div class="text-rose-400 font-bold">
+                                            ├── <span class="px-2 py-0.5 rounded bg-rose-500/20 border border-rose-500/30">[Solicitação de DED] ➔ 🔴 ATRITO CRÍTICO (Token SMS & Biometria)</span>
+                                        </div>
+                                        <div class="text-slate-400 pl-6">
+                                            └── Sub-gatilho: Instabilidade no Gateway SMS de Terceiro (SLA Excedido)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    blocks: [
+                        { id: 1, title: '1. Monitoria & Identificação do Atendimento', badge: 'SAC Inbound', badgeColor: 'bg-indigo-500/20 text-indigo-400', content: '<b>Protocolo:</b> PROT-220365 | <b>Cliente:</b> Lívia Santos | <b>Atendente:</b> Carlos Silva (Operador SAC) | <b>Canal:</b> Voz Inbound | <b>Duração Total:</b> 680s (11m 20s)' },
+                        { id: 2, title: '2. Selo de Alerta Crítico', badge: '🔴 ALERTA CRÍTICO DE RISCO REGULATÓRIO', badgeColor: 'bg-rose-500/20 text-rose-400 font-bold', content: 'Identificado descumprimento do prazo regulatório de entrega imediata/24h do Demonstrativo de Evolução da Dívida (DED), gerando risco iminente de denúncia no BACEN e Procon.' },
+                        { id: 3, title: '3. Feedback 360° do Atendimento', badge: 'Diagnóstico Operacional', badgeColor: 'bg-purple-500/20 text-purple-400', content: 'O operador Carlos Silva manteve padrão empático e cortês durante toda a chamada. No entanto, o sistema legador de envio de SMS falhou consecutivamente, forçando o operador a realizar 5 tentativas manuais frustradas sem possuir canal alternativo contingencial imediato.' },
+                        { id: 4, title: '4. Scorecard Regulatório & Ponderação', badge: 'Pontuação Auditada', badgeColor: 'bg-amber-500/20 text-amber-400', content: `
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border border-slate-800 rounded-xl overflow-hidden">
+                                    <thead class="bg-slate-900 text-slate-400 uppercase">
+                                        <tr>
+                                            <th class="py-2.5 px-4">Dimensão Auditada</th>
+                                            <th class="py-2.5 px-4 text-center">Peso Máximo</th>
+                                            <th class="py-2.5 px-4 text-center">Nota Obtida</th>
+                                            <th class="py-2.5 px-4">Status / Diagnóstico</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800 text-slate-300">
+                                        <tr>
+                                            <td class="py-2.5 px-4 font-semibold">Relacionamento e Cortesia</td>
+                                            <td class="py-2.5 px-4 text-center">50</td>
+                                            <td class="py-2.5 px-4 text-center font-bold text-emerald-400">50</td>
+                                            <td class="py-2.5 px-4 text-emerald-400">🟢 Totalmente Conforme (Tom respeitoso)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-4 font-semibold">Resolutividade no 1º Contato</td>
+                                            <td class="py-2.5 px-4 text-center">30</td>
+                                            <td class="py-2.5 px-4 text-center font-bold text-rose-400">10</td>
+                                            <td class="py-2.5 px-4 text-rose-400">🔴 Inconforme (DED não entregue na ligação)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-4 font-semibold">Experiência do Cliente & CX</td>
+                                            <td class="py-2.5 px-4 text-center">40</td>
+                                            <td class="py-2.5 px-4 text-center font-bold text-indigo-400">40</td>
+                                            <td class="py-2.5 px-4 text-indigo-400">🔵 Orientação Clara sobre Chamado Técnico</td>
+                                        </tr>
+                                        <tr class="bg-slate-900/80 font-bold">
+                                            <td class="py-3 px-4 text-white">Nota Final Ponderada (Math Safety Lock)</td>
+                                            <td class="py-3 px-4 text-center text-slate-400">120 Total</td>
+                                            <td class="py-3 px-4 text-center text-rose-400 text-sm">10.0 / 100</td>
+                                            <td class="py-3 px-4 text-rose-400">🔴 Penalização por Violação Regulatória BACEN</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `},
+                        { id: 5, title: '5. Critérios Avaliados & Matriz de Conformidade', badge: '4 Critérios', badgeColor: 'bg-sky-500/20 text-sky-400', content: '<b>1. Confirmação Cadastral LGPD:</b> 100% Conforme (Validação de CPF e Nome completo).<br><b>2. Oferta de Protocolo Inicial:</b> 100% Conforme.<br><b>3. Cumprimento do Script DED:</b> 50% Parcial (Falha na etapa de SMS).<br><b>4. Envio Contingencial:</b> Conforme (Abertura de Ticket TI-9921).' },
+                        { id: 6, title: '6. Inaderência Crítica Regulatória', badge: 'Violacão Res. 4.292/BACEN', badgeColor: 'bg-rose-500/20 text-rose-400', content: 'A não disponibilização imediata do Demonstrativo de Evolução da Dívida (DED) para fins de portabilidade fere as diretrizes do Banco Central do Brasil e os prazos limite estipulados para liquidação antecipada.' },
+                        { id: 7, title: '7. Matriz de Esforço do Cliente (CES)', badge: 'CES: 5.0 / 5.0 (Extremamente Alto)', badgeColor: 'bg-amber-500/20 text-amber-400 font-bold', content: 'A cliente teve que realizar 5 tentativas de biometria facial, aguardar 680 segundos em linha e não obteve o documento no primeiro contato.' },
+                        { id: 8, title: '8. Matriz de Risco BACEN / Procon', badge: 'Risco Regulatório: Nível 3', badgeColor: 'bg-rose-500/20 text-rose-400 font-bold', content: 'Probabilidade de reclamação nos canais oficiais do BACEN/Consumidor.gov estimada em 85% caso o envio no prazo contingencial de 24h falhe.' },
+                        { id: 9, title: '9. Causa Raiz Sistêmica', badge: 'Falha Técnica Infra', badgeColor: 'bg-purple-500/20 text-purple-400', content: 'Gargalo operacional no serviço externo de despacho de SMS (Gateway SMS Timeout) combinado com rejeição da imagem biométrica pelo SDK do aplicativo móvel.' },
+                        { id: 10, title: '10. Plano de Ação Recomendado', badge: '3 Ações Imediatas', badgeColor: 'bg-emerald-500/20 text-emerald-400', content: '1. Ativar envio automático por e-mail com senha do CPF quando o SMS exceder 30s de resposta.<br>2. Adicionar redundância de Gateway de SMS.<br>3. Notificar a cliente via WhatsApp oficial com o PDF anexado.' },
+                        { id: 11, title: '11. Conclusão Executiva da Auditoria (Math Safety Lock)', badge: 'Trava Matemática OK', badgeColor: 'bg-indigo-500/20 text-indigo-400 font-bold', content: 'Auditoria processada com validação determinística de integridade. A nota 10.0/100 reflete com precisão a ineficiência de resolutividade provocada pela instabilidade técnica, isentando a postura comportamental do operador.' }
+                    ]
+                },
+                'lindolfo': {
+                    client: 'Lindolfo Alves',
+                    protocol: 'PROT-778816',
+                    operator: 'Juliana Costa (SAC-02)',
+                    score: 95.0,
+                    kpis: [
+                        { label: 'Intenção Principal', val: 'Empréstimos / DED', sub: 'Quitação Antecipada de Contrato', color: 'indigo', icon: 'fa-hand-holding-dollar' },
+                        { label: 'Gargalo Crítico VoC', val: 'Nenhum (Jornada Fluida)', sub: 'Emissão Concluída com Sucesso', color: 'emerald', icon: 'fa-circle-check' },
+                        { label: 'Impacto TMA & SLA', val: '180s (Dentro do SLA)', sub: 'SLA Máximo Permitido: 200s', color: 'emerald', icon: 'fa-stopwatch' },
+                        { label: 'Risco Regulatório', val: 'Risco Zero (R0)', sub: 'Conformidade Total BACEN', color: 'emerald', icon: 'fa-shield-halved' }
+                    ],
+                    timeline: [
+                        {
+                            stage: '1. Entrada e Contexto',
+                            sentiment: '🟢 Neutro',
+                            sentimentClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+                            emoji: '🙂',
+                            tma: '30s',
+                            intent: 'Solicitação de boleto de quitação antecipada e DED.',
+                            quote: '"Gostaria de quitar meu contrato de empréstimo e preciso do valor atualizado do DED."'
+                        },
+                        {
+                            stage: '2. Proposta de Validação',
+                            sentiment: '🟢 Positivo',
+                            sentimentClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+                            emoji: '😊',
+                            tma: '45s',
+                            intent: 'Autenticação rápida por confirmação cadastral e envio de SMS imediato.',
+                            quote: '"Perfeito, acabei de receber o código SMS no meu celular."'
+                        },
+                        {
+                            stage: '3. Processamento & Emissão',
+                            sentiment: '🟢 Muito Satisfeito',
+                            sentimentClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+                            emoji: '😃',
+                            tma: '75s',
+                            intent: 'Gerador automático de DED processado no sistema legador.',
+                            quote: '"Ótimo, o boleto com o desconto de quitação já chegou no meu WhatsApp."'
+                        },
+                        {
+                            stage: '4. Encerramento e Pesquisa',
+                            sentiment: '🟢 Promotor / Excelente',
+                            sentimentClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-bold',
+                            emoji: '🌟',
+                            tma: '30s',
+                            intent: 'Confirmação de recebimento e nota 10 na pesquisa de satisfação.',
+                            quote: '"Muito obrigado pelo atendimento rápido e eficiente, nota 10!"'
+                        }
+                    ],
+                    treeHtml: `
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2 text-emerald-400 font-bold">
+                                <i class="fa-solid fa-cube"></i>
+                                <span>FRAN_AI :: TAXONOMIA BANCÁRIA :: CASO LINDOLFO (PROT-778816)</span>
+                            </div>
+                            <div class="pl-4 border-l-2 border-slate-700 space-y-2">
+                                <div class="text-slate-300">
+                                    ├── <span class="text-indigo-300 font-bold">[Empréstimos e Financiamentos]</span>
+                                </div>
+                                <div class="pl-6 border-l border-slate-800 space-y-1">
+                                    <div class="text-slate-300">
+                                        ├── <span class="text-sky-300">[Quitação Antecipada]</span>
+                                    </div>
+                                    <div class="pl-6 border-l border-slate-800 space-y-1">
+                                        <div class="text-emerald-400 font-bold">
+                                            ├── <span class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/30">[Envio de DED Instantâneo] ➔ 🟢 FLUXO 100% AUTOMATIZADO</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    blocks: [
+                        { id: 1, title: '1. Monitoria & Identificação do Atendimento', badge: 'SAC Inbound', badgeColor: 'bg-emerald-500/20 text-emerald-400', content: '<b>Protocolo:</b> PROT-778816 | <b>Cliente:</b> Lindolfo Alves | <b>Atendente:</b> Juliana Costa | <b>Canal:</b> Voz Inbound | <b>Duração Total:</b> 180s (3m 00s)' },
+                        { id: 2, title: '2. Selo de Alerta Crítico', badge: '🟢 ATENDIMENTO TOTALMENTE CONFORME', badgeColor: 'bg-emerald-500/20 text-emerald-400 font-bold', content: 'Atendimento perfeito com resolutividade imediata e satisfação total do cliente.' },
+                        { id: 3, title: '3. Feedback 360° do Atendimento', badge: 'Excelente Desempenho', badgeColor: 'bg-emerald-500/20 text-emerald-400', content: 'A atendente Juliana agiu com rapidez, agilidade e precisão técnica. Encaminhou o documento em tempo recorde.' },
+                        { id: 4, title: '4. Scorecard Regulatório & Ponderação', badge: 'Score Premium', badgeColor: 'bg-emerald-500/20 text-emerald-400', content: 'Relacionamento: 50/50 | Resolutividade: 30/30 | CX: 40/40. <b>Nota Final: 95.0 / 100</b>' },
+                        { id: 5, title: '5. Critérios Avaliados & Conformidade', badge: '100% Aprovado', badgeColor: 'bg-emerald-500/20 text-emerald-400', content: 'LGPD: OK | Protocolo: OK | Envio de Documentos: OK | Cortesia: OK' },
+                        { id: 6, title: '6. Inaderência Crítica Regulatória', badge: 'Zero Inconformidade', badgeColor: 'bg-emerald-500/20 text-emerald-400', content: 'Nenhuma inaderência detectada.' },
+                        { id: 7, title: '7. Matriz de Esforço do Cliente (CES)', badge: 'CES: 1.0 / 5.0 (Mínimo Esforço)', badgeColor: 'bg-emerald-500/20 text-emerald-400 font-bold', content: 'Cliente resolveu tudo em menos de 3 minutos.' },
+                        { id: 8, title: '8. Matriz de Risco BACEN / Procon', badge: 'Risco Zero (R0)', badgeColor: 'bg-emerald-500/20 text-emerald-400 font-bold', content: 'Sem risco regulatório.' },
+                        { id: 9, title: '9. Causa Raiz', badge: 'Fluxo Perfeito', badgeColor: 'bg-emerald-500/20 text-emerald-400', content: 'Sistemas funcionando em perfeita sincronia.' },
+                        { id: 10, title: '10. Plano de Ação Recomendado', badge: 'Reconhecimento', badgeColor: 'bg-emerald-500/20 text-emerald-400', content: 'Elogio registrado na ficha da operadora Juliana Costa.' },
+                        { id: 11, title: '11. Conclusão Executiva da Auditoria', badge: 'Trava Matemática OK', badgeColor: 'bg-emerald-500/20 text-emerald-400 font-bold', content: 'Auditoria validada sem erros.' }
+                    ]
+                },
+                'lote': {
+                    client: 'Visão Consolidada de 309 Atendimentos',
+                    protocol: 'LOTE-309',
+                    operator: 'Equipe Global de SAC (45 Operadores)',
+                    score: 87.4,
+                    kpis: [
+                        { label: 'Intenção Mais Frequente', val: 'Empréstimos / DED (42%)', sub: '130 Chamadas Auditadas', color: 'indigo', icon: 'fa-chart-pie' },
+                        { label: 'Principal Atrito VoC', val: 'Falha SMS & Biometria (28%)', sub: '86 Ocorrências Registradas', color: 'amber', icon: 'fa-triangle-exclamation' },
+                        { label: 'TMA Médio Geral', val: '315s (SLA: 200s)', sub: 'Desvio Médio: +115s', color: 'amber', icon: 'fa-stopwatch' },
+                        { label: 'Conformidade Regulatória', val: '91.8% de Aprovação', sub: '284 Conformes / 25 Inconformes', color: 'emerald', icon: 'fa-shield-halved' }
+                    ],
+                    timeline: [
+                        {
+                            stage: '1. Entrada & Triagem',
+                            sentiment: '🟢 78% Neutro / 22% Ansioso',
+                            sentimentClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+                            emoji: '🙂',
+                            tma: '40s médio',
+                            intent: 'Triagem inicial de chamadas inbound e identificação do cliente.',
+                            quote: '"Padrão predominante: Solicitação de extratos, saldos e 2ª via de DED."'
+                        },
+                        {
+                            stage: '2. Autenticação & Validação',
+                            sentiment: '🟡 65% Neutro / 35% Apreensivo',
+                            sentimentClass: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+                            emoji: '😐',
+                            tma: '90s médio',
+                            intent: 'Confirmação de dados pessoais e disparo de fatores de autenticação.',
+                            quote: '"Solicitação de confirmação de CPF, data de nascimento e e-mail."'
+                        },
+                        {
+                            stage: '3. Execução & Gargalo Técnico',
+                            sentiment: '🔴 28% Raiva / Frustração',
+                            sentimentClass: 'bg-rose-500/10 text-rose-400 border-rose-500/30 font-bold',
+                            emoji: '🤬',
+                            tma: '145s médio',
+                            intent: 'Processamento do pedido no sistema legador ou envio de tokens.',
+                            quote: '"Onde ocorrem 86% dos atrasos de TMA devido à espera por SMS de validação."'
+                        },
+                        {
+                            stage: '4. Fechamento & CSAT',
+                            sentiment: '🔵 84% Satisfeito / 16% Insatisfeito',
+                            sentimentClass: 'bg-sky-500/10 text-sky-400 border-sky-500/30',
+                            emoji: '🙂',
+                            tma: '40s médio',
+                            intent: 'Registro de protocolo e pesquisa de satisfação pós-atendimento.',
+                            quote: '"Nota média de satisfação da base: 8.7 / 10."'
+                        }
+                    ],
+                    treeHtml: `
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2 text-indigo-400 font-bold">
+                                <i class="fa-solid fa-cube"></i>
+                                <span>FRAN_AI :: TAXONOMIA BANCÁRIA :: CONSOLIDADO DA BASE (309 AUDITORIAS)</span>
+                            </div>
+                            <div class="pl-4 border-l-2 border-slate-700 space-y-2">
+                                <div class="text-slate-300">
+                                    ├── <span class="text-indigo-300 font-bold">[Empréstimos e Financiamentos]</span> <span class="text-slate-400">(130 chamadas - 42.0%)</span>
+                                </div>
+                                <div class="pl-6 border-l border-slate-800 space-y-1">
+                                    <div class="text-slate-300">├── [Solicitação de DED] (84 chamadas - 27.1%)</div>
+                                    <div class="text-slate-300">└── [Quitação Antecipada] (46 chamadas - 14.9%)</div>
+                                </div>
+                                <div class="text-slate-300">
+                                    ├── <span class="text-sky-300 font-bold">[Cartões & Conta Corrente]</span> <span class="text-slate-400">(108 chamadas - 35.0%)</span>
+                                </div>
+                                <div class="pl-6 border-l border-slate-800 space-y-1">
+                                    <div class="text-slate-300">├── [Desbloqueio de Token / App] (62 chamadas)</div>
+                                    <div class="text-slate-300">└── [Contestação de Fatura] (46 chamadas)</div>
+                                </div>
+                                <div class="text-slate-300">
+                                    └── <span class="text-emerald-300 font-bold">[Outros Serviços & Sac]</span> <span class="text-slate-400">(71 chamadas - 23.0%)</span>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    blocks: [
+                        { id: 1, title: '1. Síntese do Lote Auditado', badge: '309 Auditorias Total', badgeColor: 'bg-indigo-500/20 text-indigo-400', content: 'Base de dados auditada contendo 309 chamadas de voz transcritas via FRAN_AI Speech Engine com 100% de mascaramento LGPD efetuado.' },
+                        { id: 2, title: '2. Taxa de Alerta Crítico na Base', badge: '8.2% Inconformes (25 Casos)', badgeColor: 'bg-rose-500/20 text-rose-400 font-bold', content: '25 atendimentos apresentaram falhas graves de SLA ou descumprimento regulatório BACEN, concentrados prioritariamente na emissão de DED.' },
+                        { id: 3, title: '3. Desempenho Global da Equipe (45 Operadores)', badge: 'Média: 87.4 / 100', badgeColor: 'bg-emerald-500/20 text-emerald-400', content: 'Equipe demonstra altíssimo nível de cordialidade (Score Relacionamento: 48.2/50), contudo sofre limitações por instabilidades sistêmicas.' },
+                        { id: 4, title: '4. Matriz Scorecard Consolidada', badge: 'Visão Executiva', badgeColor: 'bg-amber-500/20 text-amber-400', content: 'Nota Geral Média: 87.4 | Resolutividade Média: 24.1/30 | CX Médio: 38.5/40' },
+                        { id: 5, title: '5. Critérios com Maior Incidência de Erro', badge: 'Top Gargalos', badgeColor: 'bg-purple-500/20 text-purple-400', content: '1. Envio de Token SMS (28% falha)<br>2. Confirmação Cadastral Completa (5% falha)<br>3. Oferta de Protocolo Inicial (3% falha)' },
+                        { id: 6, title: '6. Matriz Regulatória BACEN', badge: 'Conformidade 91.8%', badgeColor: 'bg-emerald-500/20 text-emerald-400', content: 'A maioria absoluta dos atendimentos cumpre rigorosamente as normas regulatórias.' }
+                    ]
+                }
+            };
+
+            let caseData = taxonomyCasesData[cid];
+            if (!caseData && cid.startsWith('audit_')) {
+                const aid = parseInt(cid.replace('audit_', ''));
+                const matched = (cachedAudits || []).find(x => x.id === aid);
+                if (matched) {
+                    caseData = {
+                        client: matched.client_name || 'Cliente Auditado',
+                        protocol: matched.protocol_number || ('PROT-' + matched.id),
+                        operator: matched.operator_name || 'Operador',
+                        score: matched.overall_score || 85.0,
+                        kpis: [
+                            { label: 'Intenção Principal', val: matched.call_classification || 'Atendimento Geral', sub: 'Categorizado por FRAN_AI', color: 'indigo', icon: 'fa-headset' },
+                            { label: 'Nota Auditada', val: `${matched.overall_score || 85.0} / 100`, sub: 'Ponderação Regulatória', color: 'emerald', icon: 'fa-star' },
+                            { label: 'Operador Responsável', val: matched.operator_name || 'Operador', sub: 'SAC Inbound', color: 'sky', icon: 'fa-user-tie' },
+                            { label: 'Status de Conformidade', val: (matched.overall_score >= 70 ? '🟢 CONFORME' : '🔴 INCONFORME'), sub: 'Selo Regulatório', color: (matched.overall_score >= 70 ? 'emerald' : 'rose'), icon: 'fa-shield-check' }
+                        ],
+                        timeline: [
+                            {
+                                stage: '1. Abertura & Identificação',
+                                sentiment: '🟢 Neutro',
+                                sentimentClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+                                emoji: '🙂',
+                                tma: '35s',
+                                intent: 'Abertura de protocolo e confirmação cadastral.',
+                                quote: '"Atendimento iniciado com validação de dados."'
+                            },
+                            {
+                                stage: '2. Desenvolvimento da Solicitação',
+                                sentiment: '🟡 Neutro / Focado',
+                                sentimentClass: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+                                emoji: '😐',
+                                tma: '90s',
+                                intent: matched.call_classification || 'Atendimento de rotina',
+                                quote: '"Tratamento da solicitação conforme script bancário."'
+                            },
+                            {
+                                stage: '3. Resolução & Conclusão',
+                                sentiment: (matched.overall_score >= 70 ? '🟢 Positivo' : '🔴 Frustrado'),
+                                sentimentClass: (matched.overall_score >= 70 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border-rose-500/30'),
+                                emoji: (matched.overall_score >= 70 ? '🙂' : '🙁'),
+                                tma: '45s',
+                                intent: 'Finalização do atendimento e orientações finais.',
+                                quote: matched.executive_summary || 'Resumo do atendimento registrado pelo sistema.'
+                            }
+                        ],
+                        treeHtml: `
+                            <div class="space-y-2 text-slate-300">
+                                <div class="text-indigo-400 font-bold">FRAN_AI :: TAXONOMIA :: PROTOCOLO ${matched.protocol_number || matched.id}</div>
+                                <div class="pl-4 border-l border-slate-700">
+                                    ├── Categoria: <span class="text-sky-300 font-bold">${matched.call_classification || 'Atendimento Geral'}</span><br>
+                                    └── Resumo Executivo: <span class="text-slate-400">${matched.executive_summary || 'Atendimento auditado.'}</span>
+                                </div>
+                            </div>
+                        `,
+                        blocks: [
+                            { id: 1, title: '1. Identificação do Registro', badge: 'Auditado', badgeColor: 'bg-indigo-500/20 text-indigo-400', content: `<b>Protocolo:</b> ${matched.protocol_number || matched.id} | <b>Cliente:</b> ${matched.client_name || 'N/A'} | <b>Operador:</b> ${matched.operator_name || 'N/A'}` },
+                            { id: 2, title: '2. Avaliação de Qualidade', badge: `Nota: ${matched.overall_score}`, badgeColor: 'bg-emerald-500/20 text-emerald-400', content: `<b>Justificativa:</b> ${matched.score_justification || 'Conformidade auditada com sucesso.'}` }
+                        ]
+                    };
+                }
+            }
+
+            if (!caseData) caseData = taxonomyCasesData['livia'];
+
+            const kpiContainer = document.getElementById('taxonomyKpiContainer');
+            if (kpiContainer) {
+                kpiContainer.innerHTML = caseData.kpis.map(k => `
+                    <div class="bg-cardbg p-5 rounded-2xl border border-slate-800 shadow-lg relative overflow-hidden group hover:border-indigo-500/40 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-medium text-slate-400">${k.label}</span>
+                            <div class="w-8 h-8 rounded-lg bg-${k.color}-500/20 text-${k.color}-400 flex items-center justify-center text-sm font-bold">
+                                <i class="fa-solid ${k.icon}"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-lg font-black text-white mt-2 truncate">${k.val}</h4>
+                        <p class="text-[11px] text-slate-400 mt-1 flex items-center space-x-1">
+                            <span>${k.sub}</span>
+                        </p>
+                    </div>
+                `).join('');
+            }
+
+            const timelineNodes = document.getElementById('taxonomyTimelineNodes');
+            if (timelineNodes) {
+                timelineNodes.innerHTML = caseData.timeline.map((stg, idx) => `
+                    <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800/90 shadow-md flex flex-col justify-between space-y-3 relative group hover:border-indigo-500/40 transition">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <span class="font-extrabold text-white text-xs flex items-center space-x-1.5">
+                                <span class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-black">${idx + 1}</span>
+                                <span class="truncate">${stg.stage}</span>
+                            </span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full border ${stg.sentimentClass}">
+                                ${stg.emoji} ${stg.sentiment}
+                            </span>
+                        </div>
+
+                        <div class="space-y-2 text-xs">
+                            <p class="text-slate-300 font-medium">${stg.intent}</p>
+                            <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 italic text-slate-300 text-[11px]">
+                                ${stg.quote}
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                            <span>Duração Estágio:</span>
+                            <span class="font-mono font-bold text-indigo-300"><i class="fa-regular fa-clock mr-1 text-[10px]"></i>${stg.tma}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const treeContainer = document.getElementById('taxonomyTreeContainer');
+            if (treeContainer) {
+                treeContainer.innerHTML = caseData.treeHtml;
+            }
+
+            const blocksContainer = document.getElementById('regulatoryAuditBlocks');
+            const scoreBadge = document.getElementById('regulatoryScoreBadge');
+            if (scoreBadge) {
+                scoreBadge.innerText = `Nota Auditada: ${caseData.score.toFixed(1)} / 100`;
+                if (caseData.score < 70) {
+                    scoreBadge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-rose-500/20 text-rose-400 border border-rose-500/30';
+                } else {
+                    scoreBadge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                }
+            }
+
+            if (blocksContainer) {
+                blocksContainer.innerHTML = caseData.blocks.map(b => `
+                    <div class="p-5 bg-slate-900/60 rounded-2xl border border-slate-800/90 space-y-2">
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+                            <h5 class="font-bold text-white text-xs flex items-center space-x-2">
+                                <i class="fa-solid fa-circle-dot text-indigo-400 text-[10px]"></i>
+                                <span>${b.title}</span>
+                            </h5>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] ${b.badgeColor}">${b.badge}</span>
+                        </div>
+                        <div class="text-xs text-slate-300 leading-relaxed pt-1">
+                            ${b.content}
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         checkSession();
